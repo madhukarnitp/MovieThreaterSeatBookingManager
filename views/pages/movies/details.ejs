@@ -1,0 +1,205 @@
+<%- include('../../partials/header') %>
+
+<!-- Movie Details Hero / Header -->
+<div class="movie-details-hero py-5">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a href="/" class="text-secondary text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item"><a href="/movies" class="text-secondary text-decoration-none">Movies</a></li>
+        <li class="breadcrumb-item active text-warning" aria-current="page"><%= movie.title %></li>
+      </ol>
+    </nav>
+
+    <div class="row g-5 align-items-center">
+      <!-- Poster Column -->
+      <div class="col-md-5 col-lg-4 text-center">
+        <div class="hero-poster-frame rounded-4 overflow-hidden shadow-lg mx-auto" style="max-width: 320px; aspect-ratio: 2/3;">
+          <img 
+            src="<%= movie.poster_path %>" 
+            alt="<%= movie.title %> Poster" 
+            class="img-fluid w-100 h-100 object-fit-cover"
+            onerror="this.src='/images/posters/fallback.svg'"
+          >
+        </div>
+      </div>
+
+      <!-- Movie Meta Column -->
+      <div class="col-md-7 col-lg-8">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+          <span class="badge text-bg-warning fw-bold px-3 py-1 rounded-pill text-dark">
+            <%= movie.certification %>
+          </span>
+          <span class="badge bg-secondary-subtle text-light border border-secondary-subtle px-3 py-1 rounded-pill">
+            <i class="bi bi-clock me-1"></i> <%= movie.formattedDuration %>
+          </span>
+          <span class="badge bg-secondary-subtle text-light border border-secondary-subtle px-3 py-1 rounded-pill">
+            <i class="bi bi-translate me-1"></i> <%= movie.language %>
+          </span>
+          <% if (movie.status === 'now_showing') { %>
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill">
+              <i class="bi bi-broadcast me-1"></i> Now Showing
+            </span>
+          <% } else if (movie.status === 'upcoming') { %>
+            <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-1 rounded-pill">
+              <i class="bi bi-stars me-1"></i> Coming Soon
+            </span>
+          <% } else { %>
+            <span class="badge bg-secondary text-white px-3 py-1 rounded-pill">Past Release</span>
+          <% } %>
+        </div>
+
+        <h1 class="display-4 fw-bold text-white mb-2"><%= movie.title %></h1>
+
+        <!-- Genre Badges -->
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <% movie.genreList.forEach(function(genreName) { %>
+            <a href="/movies?genre=<%= encodeURIComponent(genreName) %>" class="badge bg-dark text-warning border border-warning border-opacity-25 text-decoration-none px-3 py-2 rounded-pill">
+              <%= genreName %>
+            </a>
+          <% }); %>
+        </div>
+
+        <!-- Release Date -->
+        <p class="text-secondary small mb-4">
+          <i class="bi bi-calendar-event me-1 text-warning"></i>
+          Release Date: <strong class="text-light"><%= new Date(movie.release_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) %></strong>
+        </p>
+
+        <!-- Synopsis -->
+        <div class="mb-4">
+          <h5 class="fw-bold text-white mb-2">About the Movie</h5>
+          <p class="text-secondary-emphasis lead mb-0" style="font-size: 1.05rem; line-height: 1.6;">
+            <%= movie.description %>
+          </p>
+        </div>
+
+        <!-- Action CTAs -->
+        <div class="d-flex flex-wrap align-items-center gap-3">
+          <% if (movie.status === 'now_showing') { %>
+            <a href="#showtime-section" class="btn btn-warning btn-lg px-4 fw-semibold rounded-pill shadow-sm">
+              <i class="bi bi-ticket-perforated-fill me-2"></i> Book Tickets
+            </a>
+          <% } %>
+
+          <% if (movie.trailer_url) { %>
+            <a href="<%= movie.trailer_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-lg px-4 rounded-pill">
+              <i class="bi bi-play-circle-fill me-2 text-danger"></i> Watch Official Trailer
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Available Showtimes & Theater Selection Section -->
+<div class="container py-5" id="showtime-section">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle gap-3">
+    <div>
+      <h3 class="fw-bold text-white mb-1">Available Showtimes &amp; Theaters</h3>
+      <p class="text-secondary small mb-0">Select your preferred date, cinema hall, and showtime window</p>
+    </div>
+
+    <% if (showtimesData && showtimesData.availableDates && showtimesData.availableDates.length > 0) { %>
+      <!-- Date Selector Pills -->
+      <div class="d-flex gap-2 overflow-x-auto pb-1">
+        <% showtimesData.availableDates.forEach(function(dateStr) { %>
+          <% const dateObj = new Date(dateStr + 'T00:00:00'); %>
+          <a 
+            href="/movies/<%= movie.movie_id %>?date=<%= dateStr %>#showtime-section" 
+            class="date-pill <%= selectedDate === dateStr ? 'active' : '' %>"
+          >
+            <span class="small text-uppercase"><%= dateObj.toLocaleDateString('en-US', { weekday: 'short' }) %></span>
+            <span class="fs-5 fw-bold"><%= dateObj.getDate() %></span>
+            <span class="small"><%= dateObj.toLocaleDateString('en-US', { month: 'short' }) %></span>
+          </a>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Theater Showtimes Grid -->
+  <% if (showtimesData && selectedDate && showtimesData.grouped[selectedDate]) { %>
+    <% const currentTheaters = showtimesData.grouped[selectedDate].theaters; %>
+    <% const theaterIds = Object.keys(currentTheaters); %>
+
+    <% if (theaterIds.length > 0) { %>
+      <div class="d-flex flex-column gap-4">
+        <% theaterIds.forEach(function(tId) { %>
+          <% const theater = currentTheaters[tId]; %>
+          <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 p-4 shadow-sm">
+            <div class="row align-items-center g-4">
+              <!-- Theater Info Column -->
+              <div class="col-lg-4 border-end-lg border-secondary-subtle">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
+                  <h4 class="fw-bold text-white mb-0"><%= theater.name %></h4>
+                </div>
+                <p class="text-secondary small mb-2"><%= theater.address %>, <%= theater.city %></p>
+                <div class="d-flex gap-2">
+                  <span class="badge text-bg-dark border border-secondary-subtle"><i class="bi bi-car-front me-1"></i> Parking</span>
+                  <span class="badge text-bg-dark border border-secondary-subtle"><i class="bi bi-cup-straw me-1"></i> F&amp;B</span>
+                </div>
+              </div>
+
+              <!-- Showtimes Chips Column -->
+              <div class="col-lg-8">
+                <div class="d-flex flex-wrap gap-3">
+                  <% theater.showtimes.forEach(function(st) { %>
+                    <div class="showtime-chip p-3 <%= st.available_seats === 0 ? 'disabled' : '' %>">
+                      <div class="fs-6 fw-bold text-white mb-1"><%= st.formattedTime %></div>
+                      <div class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 small mb-1">
+                        <%= st.format %> &bull; <%= st.screen_name %>
+                      </div>
+                      <div class="small text-secondary mb-2">₹<%= st.base_price %></div>
+
+                      <% if (st.available_seats > 0) { %>
+                        <div class="small text-success mb-2">
+                          <i class="bi bi-check-circle me-1"></i><%= st.available_seats %> seats left
+                        </div>
+                        <a href="/showtimes/<%= st.showtime_id %>/seats" class="btn btn-warning btn-sm w-100 py-1 rounded-pill fw-semibold">
+                          Select
+                        </a>
+                      <% } else { %>
+                        <div class="small text-danger mb-2">Sold Out</div>
+                        <button class="btn btn-secondary btn-sm w-100 py-1 rounded-pill disabled" disabled>Full</button>
+                      <% } %>
+                    </div>
+                  <% }); %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="text-center py-5 text-secondary">
+        <i class="bi bi-calendar-x display-4 mb-3 d-block"></i>
+        <h5>No showtimes scheduled for <%= selectedDate %></h5>
+      </div>
+    <% } %>
+  <% } else { %>
+    <!-- Empty State for Showtimes -->
+    <div class="text-center py-5 bg-secondary bg-opacity-10 rounded-4 border border-secondary-subtle p-5">
+      <i class="bi bi-clock-history display-4 text-warning mb-3 d-block opacity-75"></i>
+      <% if (movie.status === 'upcoming') { %>
+        <h4 class="text-white fw-bold mb-2">Advance Tickets Coming Soon</h4>
+        <p class="text-secondary mb-0" style="max-width: 480px; margin: 0 auto;">
+          Showtimes for <strong><%= movie.title %></strong> will be announced closer to its release date (<%= new Date(movie.release_date).toLocaleDateString() %>).
+        </p>
+      <% } else { %>
+        <h4 class="text-white fw-bold mb-2">No Active Showtimes Found</h4>
+        <p class="text-secondary mb-0">Check back later or explore other movies currently playing.</p>
+      <% } %>
+      <div class="mt-4">
+        <a href="/movies" class="btn btn-outline-warning rounded-pill px-4">
+          <i class="bi bi-arrow-left me-1"></i> Browse Other Movies
+        </a>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../../partials/footer') %>

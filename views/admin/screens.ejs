@@ -1,0 +1,228 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <%- include('../partials/admin-sidebar') %>
+
+    <div class="col-lg-9 col-xl-10 p-4 p-md-5">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary-subtle">
+        <div>
+          <h2 class="fw-bold text-white mb-0">Screen &amp; Auditorium Management</h2>
+          <p class="text-secondary small mb-0">Assign auditoriums to theater complexes, set screen formats, and maintain seat capacities</p>
+        </div>
+        <button type="button" class="btn btn-warning rounded-pill px-4 fw-semibold text-dark" data-bs-toggle="modal" data-bs-target="#addScreenModal">
+          <i class="bi bi-plus-circle-fill me-1"></i> Add Screen
+        </button>
+      </div>
+
+      <!-- Theater Filter Bar -->
+      <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 p-3 mb-4 shadow-sm">
+        <form action="/admin/screens" method="GET" class="row g-2 align-items-center">
+          <div class="col-md-5">
+            <div class="input-group">
+              <span class="input-group-text bg-dark border-secondary-subtle text-secondary"><i class="bi bi-buildings"></i></span>
+              <select name="theater_id" class="form-select bg-dark text-light border-secondary-subtle" onchange="this.form.submit()">
+                <option value="">All Theater Complexes</option>
+                <% if (theaters) { %>
+                  <% theaters.forEach(function(t) { %>
+                    <option value="<%= t.theater_id %>" <%= String(selectedTheaterId) === String(t.theater_id) ? 'selected' : '' %>>
+                      <%= t.name %> (<%= t.city %>)
+                    </option>
+                  <% }); %>
+                <% } %>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <% if (selectedTheaterId) { %>
+              <a href="/admin/screens" class="btn btn-outline-secondary btn-sm rounded-pill text-light">Clear Filter</a>
+            <% } %>
+          </div>
+        </form>
+      </div>
+
+      <!-- Screen List Table -->
+      <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 p-4 shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+              <tr class="text-secondary small">
+                <th>THEATER COMPLEX</th>
+                <th>SCREEN NAME</th>
+                <th>FORMAT</th>
+                <th>SEATING CAPACITY</th>
+                <th>CONFIGURED SEATS</th>
+                <th>STATUS</th>
+                <th class="text-end">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (screens && screens.length > 0) { %>
+                <% screens.forEach(function(sc) { %>
+                  <tr>
+                    <td>
+                      <div class="fw-bold text-white"><%= sc.theater_name %></div>
+                      <div class="small text-secondary"><%= sc.theater_city %></div>
+                    </td>
+                    <td class="fw-semibold text-white"><%= sc.screen_name %></td>
+                    <td>
+                      <span class="badge text-bg-warning text-dark fw-bold"><%= sc.screen_type %></span>
+                    </td>
+                    <td class="fw-bold"><%= sc.total_capacity %> seats</td>
+                    <td>
+                      <span class="badge <%= sc.configured_seats_count > 0 ? 'bg-info-subtle text-info' : 'bg-danger-subtle text-danger' %> border">
+                        <i class="bi bi-grid-3x3 me-1"></i><%= sc.active_seats_count %> Active / <%= sc.configured_seats_count %> Total
+                      </span>
+                    </td>
+                    <td>
+                      <% if (sc.is_active) { %>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">Active</span>
+                      <% } else { %>
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Inactive</span>
+                      <% } %>
+                    </td>
+                    <td class="text-end">
+                      <div class="btn-group btn-group-sm">
+                        <a href="/admin/seats?screen_id=<%= sc.screen_id %>" class="btn btn-outline-info" title="Configure Physical Seats">
+                          <i class="bi bi-grid-3x3-gap"></i> Seats
+                        </a>
+                        <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editScreenModal<%= sc.screen_id %>">
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteScreenModal<%= sc.screen_id %>">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Edit Screen Modal -->
+                  <div class="modal fade" id="editScreenModal<%= sc.screen_id %>" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content bg-dark border border-secondary-subtle text-light">
+                        <form action="/admin/screens/<%= sc.screen_id %>/edit" method="POST">
+                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                          <div class="modal-header border-secondary-subtle">
+                            <h5 class="modal-title fw-bold">Edit Screen: <%= sc.screen_name %></h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                          </div>
+                          <div class="modal-body p-4">
+                            <div class="mb-3">
+                              <label class="form-label small fw-semibold">Screen / Audi Name <span class="text-danger">*</span></label>
+                              <input type="text" name="name" class="form-control bg-black text-light border-secondary-subtle" value="<%= sc.screen_name %>" required>
+                            </div>
+                            <div class="mb-3">
+                              <label class="form-label small fw-semibold">Screen Format Type</label>
+                              <select name="screen_type" class="form-select bg-black text-light border-secondary-subtle">
+                                <option value="2D" <%= sc.screen_type === '2D' ? 'selected' : '' %>>2D Standard</option>
+                                <option value="3D" <%= sc.screen_type === '3D' ? 'selected' : '' %>>3D Digital</option>
+                                <option value="IMAX" <%= sc.screen_type === 'IMAX' ? 'selected' : '' %>>IMAX with Laser</option>
+                                <option value="4DX" <%= sc.screen_type === '4DX' ? 'selected' : '' %>>4DX Motion</option>
+                              </select>
+                            </div>
+                            <div class="mb-3">
+                              <label class="form-label small fw-semibold">Seating Capacity Target</label>
+                              <input type="number" name="total_capacity" class="form-control bg-black text-light border-secondary-subtle" value="<%= sc.total_capacity %>" min="1" required>
+                            </div>
+                            <div class="mb-3">
+                              <label class="form-label small fw-semibold">Status</label>
+                              <select name="is_active" class="form-select bg-black text-light border-secondary-subtle">
+                                <option value="1" <%= sc.is_active ? 'selected' : '' %>>Active &bull; Scheduled</option>
+                                <option value="0" <%= !sc.is_active ? 'selected' : '' %>>Inactive &bull; Maintenance</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="modal-footer border-secondary-subtle">
+                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-warning rounded-pill fw-semibold">Save Changes</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Delete Screen Modal -->
+                  <div class="modal fade" id="deleteScreenModal<%= sc.screen_id %>" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content bg-dark border border-danger-subtle text-light">
+                        <form action="/admin/screens/<%= sc.screen_id %>/delete" method="POST">
+                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                          <div class="modal-header border-danger-subtle">
+                            <h5 class="modal-title fw-bold text-danger">Remove Screen</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                          </div>
+                          <div class="modal-body p-4">
+                            <p>Are you sure you want to remove <strong><%= sc.screen_name %></strong>?</p>
+                            <p class="small text-secondary mb-0">If this screen has scheduled showtimes, it will be deactivated to preserve historical ticket records.</p>
+                          </div>
+                          <div class="modal-footer border-secondary-subtle">
+                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger rounded-pill fw-semibold">Confirm Removal</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="7" class="text-center text-secondary py-5">No screens configured yet.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Screen Modal -->
+<div class="modal fade" id="addScreenModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark border border-secondary-subtle text-light">
+      <form action="/admin/screens" method="POST">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+        <div class="modal-header border-secondary-subtle">
+          <h5 class="modal-title fw-bold"><i class="bi bi-display me-2 text-warning"></i>Add Screen to Theater</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Theater Complex <span class="text-danger">*</span></label>
+            <select name="theater_id" class="form-select bg-black text-light border-secondary-subtle" required>
+              <% if (theaters) { %>
+                <% theaters.forEach(function(t) { %>
+                  <option value="<%= t.theater_id %>"><%= t.name %> (<%= t.city %>)</option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Screen Name <span class="text-danger">*</span></label>
+            <input type="text" name="name" class="form-control bg-black text-light border-secondary-subtle" placeholder="e.g. Screen 3 (Gold Class)" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Screen Format Type</label>
+            <select name="screen_type" class="form-select bg-black text-light border-secondary-subtle">
+              <option value="2D">2D Standard</option>
+              <option value="3D">3D Digital</option>
+              <option value="IMAX">IMAX with Laser</option>
+              <option value="4DX">4DX Motion</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Initial Target Capacity</label>
+            <input type="number" name="total_capacity" class="form-control bg-black text-light border-secondary-subtle" value="50" min="1" required>
+          </div>
+        </div>
+        <div class="modal-footer border-secondary-subtle">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning rounded-pill fw-semibold text-dark">Save Screen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

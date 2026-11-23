@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b0764"/>
+      <stop offset="100%" stop-color="#be185d"/>
+    </linearGradient>
+    <radialGradient id="fireGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fdba74"/>
+      <stop offset="70%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="600" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle Grid texture -->
+  <line x1="20" y1="20" x2="380" y2="20" stroke="#ec4899" stroke-width="1" opacity="0.2"/>
+  <line x1="20" y1="580" x2="380" y2="580" stroke="#ec4899" stroke-width="1" opacity="0.2"/>
+  <line x1="20" y1="20" x2="20" y2="580" stroke="#ec4899" stroke-width="1" opacity="0.2"/>
+  <line x1="380" y1="20" x2="380" y2="580" stroke="#ec4899" stroke-width="1" opacity="0.2"/>
+
+  <!-- Top Badges -->
+  <rect x="35" y="35" width="42" height="22" rx="4" fill="#0f172a" stroke="#ec4899" stroke-width="1"/>
+  <text x="56" y="50" font-family="'Inter', sans-serif" font-size="11" font-weight="bold" fill="#ec4899" text-anchor="middle">U</text>
+
+  <rect x="305" y="35" width="60" height="22" rx="4" fill="#0f172a" stroke="#ec4899" stroke-width="1"/>
+  <text x="335" y="50" font-family="'Inter', sans-serif" font-size="11" font-weight="bold" fill="#f8fafc" text-anchor="middle">140m</text>
+
+  <!-- Central Artwork Icon -->
+  <g>
+    <circle cx="200" cy="260" r="70" stroke="#ec4899" stroke-width="4" fill="none"/>
+           <path d="M160,240 Q200,280 240,240 Q200,260 160,240 Z" fill="#f43f5e"/>
+           <line x1="200" y1="190" x2="200" y2="330" stroke="#38bdf8" stroke-width="2"/>
+           <line x1="130" y1="260" x2="270" y2="260" stroke="#38bdf8" stroke-width="2"/>
+  </g>
+
+  <!-- Cinema Brand Tag -->
+  <text x="200" y="440" font-family="'Inter', sans-serif" font-size="11" font-weight="700" fill="#ec4899" letter-spacing="4" text-anchor="middle">CINESEAT EXCLUSIVE</text>
+
+  <!-- Title -->
+  <text x="200" y="475" font-family="'Inter', sans-serif" font-size="24" font-weight="900" fill="#ffffff" letter-spacing="2" text-anchor="middle">SPIDER-MAN</text>
+
+  <!-- Tagline -->
+  <text x="200" y="505" font-family="'Inter', sans-serif" font-size="9" font-weight="600" fill="#94a3b8" letter-spacing="1.5" text-anchor="middle">BEYOND THE SPIDER-VERSE</text>
+
+  <!-- Bottom Details -->
+  <text x="200" y="555" font-family="'Inter', sans-serif" font-size="11" font-weight="bold" fill="#ec4899" text-anchor="middle">IN THEATERS &bull; 2025</text>
+</svg>

@@ -1,0 +1,284 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Admin Sidebar -->
+    <%- include('../partials/admin-sidebar') %>
+
+    <!-- Main Content -->
+    <div class="col-lg-9 col-xl-10 p-4 p-md-5">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary-subtle">
+        <div>
+          <h2 class="fw-bold text-white mb-0">Movie Catalog Management</h2>
+          <p class="text-secondary small mb-0">Add movies, assign multiple genres, update details, or deactivate ended films</p>
+        </div>
+        <button type="button" class="btn btn-warning rounded-pill px-4 fw-semibold text-dark" data-bs-toggle="modal" data-bs-target="#addMovieModal">
+          <i class="bi bi-plus-circle-fill me-1"></i> Add New Movie
+        </button>
+      </div>
+
+      <!-- Movies Table -->
+      <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 p-4 shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+              <tr class="text-secondary small">
+                <th>POSTER</th>
+                <th>TITLE &amp; CERT</th>
+                <th>GENRES</th>
+                <th>DURATION</th>
+                <th>LANGUAGE</th>
+                <th>RELEASE DATE</th>
+                <th>STATUS</th>
+                <th class="text-end">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (movies && movies.length > 0) { %>
+                <% movies.forEach(function(m) { %>
+                  <tr>
+                    <td style="width: 50px;">
+                      <img 
+                        src="<%= m.poster_path %>" 
+                        alt="<%= m.title %>" 
+                        class="rounded-2 object-fit-cover shadow-sm" 
+                        style="width: 42px; height: 60px;"
+                        onerror="this.src='/images/posters/fallback.svg'"
+                      >
+                    </td>
+                    <td>
+                      <div class="fw-bold text-white"><%= m.title %></div>
+                      <span class="badge text-bg-secondary"><%= m.certification %></span>
+                    </td>
+                    <td class="small text-secondary" style="max-width: 180px;"><%= m.genres || 'None' %></td>
+                    <td><%= m.duration_min %> min</td>
+                    <td><%= m.language %></td>
+                    <td class="small text-secondary"><%= new Date(m.release_date).toLocaleDateString() %></td>
+                    <td>
+                      <% if (m.status === 'now_showing') { %>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">Now Showing</span>
+                      <% } else if (m.status === 'upcoming') { %>
+                        <span class="badge bg-info-subtle text-info border border-info-subtle">Upcoming</span>
+                      <% } else { %>
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Ended</span>
+                      <% } %>
+                    </td>
+                    <td class="text-end">
+                      <div class="btn-group btn-group-sm">
+                        <!-- Edit Button triggering Edit Modal -->
+                        <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editModal<%= m.movie_id %>" title="Edit Movie">
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <!-- Delete/Deactivate Button -->
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<%= m.movie_id %>" title="Delete or Deactivate">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Edit Movie Modal -->
+                  <div class="modal fade" id="editModal<%= m.movie_id %>" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                      <div class="modal-content bg-dark border border-secondary-subtle text-light">
+                        <form action="/admin/movies/<%= m.movie_id %>/edit" method="POST">
+                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                          <div class="modal-header border-secondary-subtle">
+                            <h5 class="modal-title fw-bold">Edit Movie: <%= m.title %></h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body p-4">
+                            <div class="row g-3">
+                              <div class="col-md-8">
+                                <label class="form-label small fw-semibold">Movie Title <span class="text-danger">*</span></label>
+                                <input type="text" name="title" class="form-control bg-black text-light border-secondary-subtle" value="<%= m.title %>" required>
+                              </div>
+                              <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Slug</label>
+                                <input type="text" name="slug" class="form-control bg-black text-light border-secondary-subtle" value="<%= m.slug %>">
+                              </div>
+                              <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Duration (Minutes) <span class="text-danger">*</span></label>
+                                <input type="number" name="duration_min" class="form-control bg-black text-light border-secondary-subtle" value="<%= m.duration_min %>" min="1" max="600" required>
+                              </div>
+                              <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Language <span class="text-danger">*</span></label>
+                                <input type="text" name="language" class="form-control bg-black text-light border-secondary-subtle" value="<%= m.language %>" required>
+                              </div>
+                              <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Certification <span class="text-danger">*</span></label>
+                                <select name="certification" class="form-select bg-black text-light border-secondary-subtle" required>
+                                  <option value="U" <%= m.certification === 'U' ? 'selected' : '' %>>U (Universal)</option>
+                                  <option value="UA" <%= m.certification === 'UA' ? 'selected' : '' %>>UA (Parental Guidance)</option>
+                                  <option value="A" <%= m.certification === 'A' ? 'selected' : '' %>>A (Adults Only)</option>
+                                  <option value="S" <%= m.certification === 'S' ? 'selected' : '' %>>S (Specialized)</option>
+                                </select>
+                              </div>
+                              <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Release Date <span class="text-danger">*</span></label>
+                                <input type="date" name="release_date" class="form-control bg-black text-light border-secondary-subtle" value="<%= new Date(m.release_date).toISOString().split('T')[0] %>" required>
+                              </div>
+                              <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Catalog Status</label>
+                                <select name="status" class="form-select bg-black text-light border-secondary-subtle">
+                                  <option value="now_showing" <%= m.status === 'now_showing' ? 'selected' : '' %>>Now Showing</option>
+                                  <option value="upcoming" <%= m.status === 'upcoming' ? 'selected' : '' %>>Upcoming</option>
+                                  <option value="ended" <%= m.status === 'ended' ? 'selected' : '' %>>Ended</option>
+                                </select>
+                              </div>
+                              <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Poster URL / Path</label>
+                                <input type="text" name="poster_path" class="form-control bg-black text-light border-secondary-subtle" value="<%= m.poster_path %>">
+                              </div>
+                              <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Trailer YouTube URL</label>
+                                <input type="url" name="trailer_url" class="form-control bg-black text-light border-secondary-subtle" value="<%= m.trailer_url || '' %>">
+                              </div>
+                              <div class="col-12">
+                                <label class="form-label small fw-semibold">Assign Genres (Hold Ctrl to select multiple)</label>
+                                <select name="genres" class="form-select bg-black text-light border-secondary-subtle" multiple size="4">
+                                  <% if (genres) { %>
+                                    <% genres.forEach(function(g) { %>
+                                      <option value="<%= g.genre_id %>" <%= (m.genres && m.genres.includes(g.name)) ? 'selected' : '' %>>
+                                        <%= g.name %>
+                                      </option>
+                                    <% }); %>
+                                  <% } %>
+                                </select>
+                              </div>
+                              <div class="col-12">
+                                <label class="form-label small fw-semibold">Synopsis / Description</label>
+                                <textarea name="description" class="form-control bg-black text-light border-secondary-subtle" rows="3"><%= m.description || '' %></textarea>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="modal-footer border-secondary-subtle">
+                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-warning rounded-pill fw-semibold">Save Changes</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Delete/Deactivate Confirmation Modal -->
+                  <div class="modal fade" id="deleteModal<%= m.movie_id %>" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content bg-dark border border-danger-subtle text-light">
+                        <form action="/admin/movies/<%= m.movie_id %>/delete" method="POST">
+                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                          <div class="modal-header border-danger-subtle">
+                            <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Delete or Deactivate Movie</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body p-4">
+                            <p class="mb-2">Are you sure you want to remove <strong><%= m.title %></strong>?</p>
+                            <p class="small text-secondary mb-0">
+                              If this movie has historical showtimes or bookings, the system will automatically preserve audit records and set its status to <strong>ended</strong> rather than deleting historical data.
+                            </p>
+                          </div>
+                          <div class="modal-footer border-secondary-subtle">
+                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger rounded-pill fw-semibold">Confirm Removal</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="8" class="text-center text-secondary py-5">No movies found in catalog.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Movie Modal -->
+<div class="modal fade" id="addMovieModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content bg-dark border border-secondary-subtle text-light">
+      <form action="/admin/movies" method="POST">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+        <div class="modal-header border-secondary-subtle">
+          <h5 class="modal-title fw-bold"><i class="bi bi-film me-2 text-warning"></i>Add New Movie</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label small fw-semibold">Movie Title <span class="text-danger">*</span></label>
+              <input type="text" name="title" class="form-control bg-black text-light border-secondary-subtle" placeholder="e.g. Blade Runner 2049" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Custom Slug (Optional)</label>
+              <input type="text" name="slug" class="form-control bg-black text-light border-secondary-subtle" placeholder="auto-generated">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Duration (Minutes) <span class="text-danger">*</span></label>
+              <input type="number" name="duration_min" class="form-control bg-black text-light border-secondary-subtle" placeholder="150" min="1" max="600" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Language <span class="text-danger">*</span></label>
+              <input type="text" name="language" class="form-control bg-black text-light border-secondary-subtle" placeholder="English, Hindi, etc." required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Certification <span class="text-danger">*</span></label>
+              <select name="certification" class="form-select bg-black text-light border-secondary-subtle" required>
+                <option value="UA">UA (Parental Guidance)</option>
+                <option value="U">U (Universal)</option>
+                <option value="A">A (Adults Only)</option>
+                <option value="S">S (Specialized)</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Release Date <span class="text-danger">*</span></label>
+              <input type="date" name="release_date" class="form-control bg-black text-light border-secondary-subtle" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Catalog Status</label>
+              <select name="status" class="form-select bg-black text-light border-secondary-subtle">
+                <option value="now_showing" selected>Now Showing</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="ended">Ended</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Poster Image Path / URL</label>
+              <input type="text" name="poster_path" class="form-control bg-black text-light border-secondary-subtle" placeholder="/images/posters/movie.svg">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Trailer URL (YouTube)</label>
+              <input type="url" name="trailer_url" class="form-control bg-black text-light border-secondary-subtle" placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Assign Multiple Genres (Hold Ctrl to select)</label>
+              <select name="genres" class="form-select bg-black text-light border-secondary-subtle" multiple size="4">
+                <% if (genres) { %>
+                  <% genres.forEach(function(g) { %>
+                    <option value="<%= g.genre_id %>"><%= g.name %></option>
+                  <% }); %>
+                <% } %>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Synopsis / Description</label>
+              <textarea name="description" class="form-control bg-black text-light border-secondary-subtle" rows="3" placeholder="Movie premise and plot summary..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-secondary-subtle">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning rounded-pill fw-semibold text-dark">Save and Publish Movie</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

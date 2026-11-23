@@ -1,0 +1,119 @@
+<%- include('../partials/header') %>
+
+<div class="container py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="/" class="text-secondary text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a href="/customer/dashboard" class="text-secondary text-decoration-none">Dashboard</a></li>
+      <li class="breadcrumb-item active text-warning" aria-current="page">My Profile</li>
+    </ol>
+  </nav>
+
+  <!-- Customer Sub-Navigation Tabs -->
+  <ul class="nav nav-pills gap-2 mb-4 p-2 bg-dark rounded-pill border border-secondary border-opacity-25 justify-content-center justify-content-md-start">
+    <li class="nav-item">
+      <a class="nav-link text-light rounded-pill px-4" href="/customer/dashboard">
+        <i class="bi bi-speedometer2 me-1"></i> Overview
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-light rounded-pill px-4" href="/customer/bookings?filter=upcoming">
+        <i class="bi bi-calendar-event me-1"></i> Upcoming
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-light rounded-pill px-4" href="/customer/bookings">
+        <i class="bi bi-ticket-perforated me-1"></i> My Bookings
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-light rounded-pill px-4" href="/customer/tickets">
+        <i class="bi bi-qr-code-scan me-1"></i> My Tickets
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active bg-warning text-dark fw-bold rounded-pill px-4" href="/customer/profile">
+        <i class="bi bi-person-circle me-1"></i> Profile &amp; Security
+      </a>
+    </li>
+  </ul>
+
+  <div class="row g-4">
+    <!-- Profile Edit Form -->
+    <div class="col-lg-6">
+      <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 p-4 shadow-sm h-100">
+        <h5 class="fw-bold text-white mb-3 border-bottom border-secondary-subtle pb-2">
+          <i class="bi bi-person-lines-fill text-warning me-2"></i>Personal Information
+        </h5>
+
+        <form action="/customer/profile" method="POST">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="mb-3">
+            <label class="form-label text-light small fw-semibold">Email Address (Read-only)</label>
+            <input type="email" class="form-control bg-dark border-secondary-subtle text-white-50" value="<%= customer.email %>" readonly disabled>
+            <div class="form-text text-secondary">Account email cannot be modified.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-light small fw-semibold">Full Name</label>
+            <input type="text" name="full_name" class="form-control bg-dark border-secondary-subtle text-white" value="<%= customer.full_name %>" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-light small fw-semibold">Phone Number</label>
+            <input type="tel" name="phone" class="form-control bg-dark border-secondary-subtle text-white" value="<%= customer.phone || '' %>" placeholder="+91 9876543210">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label text-light small fw-semibold">Account Status</label>
+            <div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                <i class="bi bi-check-circle-fill me-1"></i><%= customer.status.toUpperCase() %>
+              </span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">
+            <i class="bi bi-save me-1"></i> Save Profile Details
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Password Change Form -->
+    <div class="col-lg-6">
+      <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 p-4 shadow-sm h-100">
+        <h5 class="fw-bold text-white mb-3 border-bottom border-secondary-subtle pb-2">
+          <i class="bi bi-shield-lock text-warning me-2"></i>Change Password
+        </h5>
+
+        <form action="/customer/change-password" method="POST">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="mb-3">
+            <label class="form-label text-light small fw-semibold">Current Password</label>
+            <input type="password" name="current_password" class="form-control bg-dark border-secondary-subtle text-white" placeholder="Enter current password" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-light small fw-semibold">New Password (Min 8 characters)</label>
+            <input type="password" name="new_password" class="form-control bg-dark border-secondary-subtle text-white" placeholder="Enter new password" minlength="8" required>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label text-light small fw-semibold">Confirm New Password</label>
+            <input type="password" name="confirm_password" class="form-control bg-dark border-secondary-subtle text-white" placeholder="Re-enter new password" minlength="8" required>
+          </div>
+
+          <button type="submit" class="btn btn-outline-warning rounded-pill px-4 fw-bold">
+            <i class="bi bi-key-fill me-1"></i> Update Password
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

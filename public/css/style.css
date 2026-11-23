@@ -1,0 +1,371 @@
+/* ==========================================================================
+   CineSeat Manager - Custom Styling (Optimized for Tailwind CSS 3)
+   ========================================================================== */
+
+:root {
+  --primary-accent: #f59e0b;
+  --primary-accent-hover: #d97706;
+  --bg-dark: #0b0f19;
+  --card-dark: #111827;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-dark);
+  color: #e2e8f0;
+  overflow-x: hidden;
+  /* Glassy lined background grid (aesthetic modern technical canvas) */
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.12), transparent);
+  background-size: 32px 32px, 32px 32px, 100% 100%;
+  background-attachment: fixed;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0f19;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* ==========================================================================
+   Cinema Hero & Movie Cards
+   ========================================================================== */
+
+.hero-cinema {
+  background: radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.12) 0%, transparent 50%),
+              linear-gradient(180deg, rgba(17, 24, 39, 0.8) 0%, rgba(11, 15, 25, 0.95) 100%);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(8px);
+}
+
+.hero-poster-frame {
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8), 0 0 25px rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  transition: transform 0.3s ease;
+}
+.hero-poster-frame:hover {
+  transform: scale(1.02);
+}
+
+.movie-card {
+  background-color: var(--card-dark);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1), 
+              box-shadow 0.25s cubic-bezier(0.165, 0.84, 0.44, 1),
+              border-color 0.25s ease;
+}
+.movie-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.7), 0 0 15px rgba(245, 158, 11, 0.15);
+}
+
+.movie-poster-wrapper {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  width: 100%;
+  overflow: hidden;
+  background-color: #030712;
+}
+
+.movie-poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.movie-card:hover .movie-poster-img {
+  transform: scale(1.05);
+}
+
+.poster-overlay-top {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+}
+
+.poster-overlay-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem 1rem 0.75rem 1rem;
+  background: linear-gradient(to top, rgba(17, 24, 39, 0.95) 0%, transparent 100%);
+  z-index: 2;
+}
+
+/* ==========================================================================
+   Interactive Cinema Screen & Seat Grid Layout
+   ========================================================================== */
+
+.cinema-screen-container {
+  perspective: 400px;
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+.cinema-screen {
+  height: 12px;
+  background: linear-gradient(180deg, #f59e0b 0%, rgba(245, 158, 11, 0.2) 100%);
+  border-radius: 50% / 100% 100% 0 0;
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.45);
+  transform: rotateX(-12deg);
+}
+
+.cinema-screen-text {
+  letter-spacing: 0.25em;
+  font-size: 0.75rem;
+}
+
+.seat-matrix-wrapper {
+  max-width: 100%;
+}
+
+.row-label {
+  display: inline-block;
+  width: 24px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Cinema Seat Button */
+.cinema-seat {
+  width: 32px;
+  height: 30px;
+  border-radius: 6px 6px 3px 3px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease-in-out;
+  user-select: none;
+  background-color: transparent;
+}
+
+/* Seat States */
+.cinema-seat.seat-available {
+  background-color: #10b981;
+  color: #064e3b;
+  border-color: #059669;
+}
+.cinema-seat.seat-available:hover {
+  background-color: #34d399;
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+  z-index: 2;
+}
+
+.cinema-seat.selected {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+  border-color: #1d4ed8 !important;
+  transform: scale(1.12);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.8) !important;
+}
+
+.cinema-seat.seat-held {
+  background-color: #f97316;
+  color: #7c2d12;
+  border-color: #ea580c;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+.cinema-seat.seat-held.is-my-hold {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border-color: #1d4ed8;
+  cursor: pointer;
+}
+
+.cinema-seat.seat-booked {
+  background-color: #ef4444;
+  color: #7f1d1d;
+  border-color: #dc2626;
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.cinema-seat.seat-blocked {
+  background-color: #334155;
+  color: #64748b;
+  border-color: #1e293b;
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+/* Legend Badges */
+.seat-badge {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+.seat-badge.available { background-color: #10b981; }
+.seat-badge.selected { background-color: #3b82f6; }
+.seat-badge.held { background-color: #f97316; }
+.seat-badge.booked { background-color: #ef4444; }
+.seat-badge.blocked { background-color: #334155; }
+
+/* Pulse Indicator */
+.pulse-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.min-h-seat-pill {
+  min-height: 38px;
+}
+
+/* ==========================================================================
+   ZeBeyond Engineering Platform Design System (Admin Theme Enhancements)
+   ========================================================================== */
+
+/* Dark canvas surface background overrides with glassy lined aesthetic */
+body.bg-dark {
+  background-color: #07080C !important;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(99, 102, 241, 0.08), transparent) !important;
+  background-size: 32px 32px, 32px 32px, 100% 100% !important;
+  background-attachment: fixed !important;
+}
+
+/* ZeBeyond Graphite Card Component */
+.card.bg-secondary.bg-opacity-10 {
+  background-color: #11141D !important;
+  border-color: #1E2433 !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 1px 0 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+/* ZeBeyond Tables */
+.table.table-dark {
+  --bs-table-bg: transparent;
+  --bs-table-hover-bg: #141926;
+  --bs-table-border-color: #1E2433;
+}
+
+.table.table-dark thead th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748B;
+  border-bottom: 1px solid #1E2433;
+  background-color: rgba(17, 20, 29, 0.6);
+}
+
+.table.table-dark td {
+  border-bottom: 1px solid #1E2433;
+}
+
+/* Form Controls in Admin */
+.form-control.bg-dark, .form-select.bg-dark {
+  background-color: #0B0D13 !important;
+  border-color: #1E2433 !important;
+  color: #E2E8F0 !important;
+  font-size: 0.85rem;
+}
+
+.form-control.bg-dark:focus, .form-select.bg-dark:focus {
+  border-color: #6366F1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+}
+
+/* ZeBeyond Status Badges */
+.badge.bg-success-subtle {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+  color: #34D399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+.badge.bg-warning-subtle {
+  background-color: rgba(245, 158, 11, 0.12) !important;
+  color: #FBBF24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+.badge.bg-info-subtle {
+  background-color: rgba(0, 240, 255, 0.12) !important;
+  color: #38BDF8 !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+.badge.bg-danger-subtle {
+  background-color: rgba(239, 68, 68, 0.12) !important;
+  color: #F87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+.badge.bg-secondary-subtle {
+  background-color: #181E2E !important;
+  color: #94A3B8 !important;
+  border: 1px solid #21293B !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+/* Modals with ZeBeyond Dark Glass Aesthetic */
+.modal-content.bg-dark {
+  background-color: #0B0D13 !important;
+  border: 1px solid #1E2433 !important;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 25px rgba(99, 102, 241, 0.15);
+}
+
+.modal-header, .modal-footer {
+  border-color: #1E2433 !important;
+}

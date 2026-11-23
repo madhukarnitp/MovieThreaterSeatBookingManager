@@ -1,0 +1,434 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid bg-[#07080C] min-vh-100 text-slate-100">
+  <div class="row g-0">
+    <!-- Admin Sidebar Partial -->
+    <%- include('../partials/admin-sidebar') %>
+
+    <!-- Main Admin Content Area -->
+    <div class="col-lg-9 col-xl-10 p-4 p-md-5 bg-[#07080C]">
+      <!-- Command Bar Header -->
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-b border-[#1E2433] gap-3">
+        <div>
+          <div class="d-flex align-items-center gap-2">
+            <h2 class="text-xl md:text-2xl font-extrabold text-white mb-0 font-sans tracking-tight">Cinema Operations Dashboard</h2>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 d-inline-flex align-items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> SYSTEM HEALTHY
+            </span>
+          </div>
+          <p class="text-slate-400 text-xs font-mono mt-1 mb-0">Production cluster monitoring &bull; Real-time transactional pipeline</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="/admin/reports" class="btn btn-sm rounded-xl px-3 font-mono text-xs d-flex align-items-center gap-1.5 bg-[#131722] hover:bg-[#1A202E] text-indigo-300 border border-indigo-500/30 shadow-sm transition-all">
+            <i class="bi bi-bar-chart-line-fill text-[#6366F1]"></i> Telemetry
+          </a>
+          <a href="/admin/tickets/verify" class="btn btn-sm rounded-xl px-3 font-mono text-xs d-flex align-items-center gap-1.5 bg-[#131722] hover:bg-[#1A202E] text-cyan-300 border border-cyan-500/30 shadow-sm transition-all">
+            <i class="bi bi-qr-code-scan text-[#00F0FF]"></i> Scan Gate
+          </a>
+          <a href="/admin/showtimes" class="btn btn-sm rounded-xl px-3 font-mono text-xs d-flex align-items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold shadow-lg shadow-indigo-600/25 border border-indigo-400/40 transition-all">
+            <i class="bi bi-plus-lg"></i> Schedule Showtime
+          </a>
+        </div>
+      </div>
+
+      <!-- KPI Metrics Grid (ZeBeyond Graphite Glass with Accent Indicators) -->
+      <div class="row g-3 mb-4">
+        <!-- Revenue Metric -->
+        <div class="col-sm-6 col-xl-3">
+          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 relative overflow-hidden group hover:border-[#6366F1]/50 transition-all duration-300 shadow-xl">
+            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#10B981] to-[#00F0FF]"></div>
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="text-slate-400 text-[11px] font-mono uppercase tracking-wider">Gross Settled ARR</span>
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                <i class="bi bi-currency-rupee text-sm"></i>
+              </div>
+            </div>
+            <div class="text-2xl md:text-3xl font-extrabold text-white font-mono tracking-tight mb-1">
+              ₹<%= metrics.totalSuccessfulRevenue.toFixed(2) %>
+            </div>
+            <div class="d-flex align-items-center gap-1.5 text-[11px] font-mono text-emerald-400">
+              <i class="bi bi-shield-check"></i>
+              <span>100% Verified Settled</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Bookings -->
+        <div class="col-sm-6 col-xl-3">
+          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 relative overflow-hidden group hover:border-[#6366F1]/50 transition-all duration-300 shadow-xl">
+            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]"></div>
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="text-slate-400 text-[11px] font-mono uppercase tracking-wider">Total Bookings</span>
+              <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
+                <i class="bi bi-ticket-perforated text-sm"></i>
+              </div>
+            </div>
+            <div class="text-2xl md:text-3xl font-extrabold text-white font-mono tracking-tight mb-1">
+              <%= metrics.totalBookings %>
+            </div>
+            <div class="d-flex align-items-center gap-1.5 text-[11px] font-mono text-indigo-400">
+              <span class="text-slate-400">Confirmed:</span> <%= metrics.confirmedBookings %>
+              <span class="text-slate-500">&bull;</span>
+              <span class="text-amber-400">Hold: <%= metrics.pendingBookings %></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Movies In Catalog -->
+        <div class="col-sm-6 col-xl-3">
+          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 relative overflow-hidden group hover:border-[#6366F1]/50 transition-all duration-300 shadow-xl">
+            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#00F0FF] to-[#38BDF8]"></div>
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="text-slate-400 text-[11px] font-mono uppercase tracking-wider">Active Catalog</span>
+              <div class="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20">
+                <i class="bi bi-film text-sm"></i>
+              </div>
+            </div>
+            <div class="text-2xl md:text-3xl font-extrabold text-white font-mono tracking-tight mb-1">
+              <%= metrics.totalMovies %>
+            </div>
+            <div class="d-flex align-items-center gap-1.5 text-[11px] font-mono text-cyan-400">
+              <i class="bi bi-play-circle"></i>
+              <span>Active Titles Across Theaters</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Facilities (Theaters / Screens) -->
+        <div class="col-sm-6 col-xl-3">
+          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 relative overflow-hidden group hover:border-[#6366F1]/50 transition-all duration-300 shadow-xl">
+            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#F59E0B] to-[#EF4444]"></div>
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="text-slate-400 text-[11px] font-mono uppercase tracking-wider">Screening Units</span>
+              <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
+                <i class="bi bi-display text-sm"></i>
+              </div>
+            </div>
+            <div class="text-2xl md:text-3xl font-extrabold text-white font-mono tracking-tight mb-1">
+              <%= metrics.totalScreens %> <span class="text-xs text-slate-400 font-normal">in <%= metrics.totalTheaters %> Theaters</span>
+            </div>
+            <div class="d-flex align-items-center gap-1.5 text-[11px] font-mono text-amber-400">
+              <i class="bi bi-people"></i>
+              <span>Patrons: <%= metrics.totalCustomers %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- High-tech Funnel Bar -->
+      <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-3 mb-4 shadow-xl">
+        <div class="row g-2 text-center font-mono">
+          <div class="col-6 col-md-3 border-end border-[#1E2433]">
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider">Pipeline Total</div>
+            <div class="text-lg font-bold text-white"><%= metrics.totalBookings %></div>
+          </div>
+          <div class="col-6 col-md-3 border-end border-[#1E2433]">
+            <div class="text-[10px] text-emerald-400 uppercase tracking-wider">Confirmed Execution</div>
+            <div class="text-lg font-bold text-emerald-400"><%= metrics.confirmedBookings %></div>
+          </div>
+          <div class="col-6 col-md-3 border-end border-[#1E2433]">
+            <div class="text-[10px] text-amber-400 uppercase tracking-wider">Pending Lock</div>
+            <div class="text-lg font-bold text-amber-400"><%= metrics.pendingBookings %></div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="text-[10px] text-rose-400 uppercase tracking-wider">Aborted / Expired</div>
+            <div class="text-lg font-bold text-rose-400"><%= metrics.cancelledBookings + metrics.expiredBookings %></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section (Graphite Glass Panels) -->
+      <div class="row g-4 mb-4">
+        <!-- Booking & Revenue Trends -->
+        <div class="col-lg-7">
+          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 h-100 shadow-xl relative">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h5 class="text-sm font-bold text-white font-mono uppercase tracking-wider mb-0 flex items-center gap-2">
+                  <i class="bi bi-graph-up text-[#00F0FF]"></i> Velocity &amp; Revenue Trends
+                </h5>
+                <span class="text-[11px] text-slate-400 font-mono">Rolling 7-day execution telemetry</span>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#1E2433] text-indigo-300 border border-indigo-500/20">LIVE AGGREGATE</span>
+            </div>
+            <div style="height: 270px; position: relative;">
+              <canvas id="trendChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue by Movie -->
+        <div class="col-lg-5">
+          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 h-100 shadow-xl relative">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h5 class="text-sm font-bold text-white font-mono uppercase tracking-wider mb-0 flex items-center gap-2">
+                  <i class="bi bi-pie-chart text-[#8B5CF6]"></i> Yield Share by Title
+                </h5>
+                <span class="text-[11px] text-slate-400 font-mono">Confirmed ticket proceeds</span>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#1E2433] text-cyan-300 border border-cyan-500/20">SETTLED</span>
+            </div>
+            <div style="height: 270px; position: relative;" class="d-flex align-items-center justify-content-center">
+              <canvas id="moviePieChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions & Audit Stream -->
+      <div class="row g-4">
+        <!-- Recent Bookings Table -->
+        <div class="col-lg-7">
+          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 shadow-xl">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="text-sm font-bold text-white font-mono uppercase tracking-wider mb-0 flex items-center gap-2">
+                <i class="bi bi-ticket-perforated text-emerald-400"></i> Recent Booking Dispatches
+              </h5>
+              <a href="/admin/bookings" class="text-xs font-mono text-indigo-400 hover:text-indigo-300 transition-colors">Inspect All &rarr;</a>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-100 text-left text-xs font-sans">
+                <thead>
+                  <tr class="text-slate-400 border-b border-[#1E2433] font-mono text-[11px]">
+                    <th class="py-2.5 px-3">REF</th>
+                    <th class="py-2.5 px-3">CUSTOMER</th>
+                    <th class="py-2.5 px-3">MOVIE / THEATER</th>
+                    <th class="py-2.5 px-3">AMOUNT</th>
+                    <th class="py-2.5 px-3">STATUS</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[#1E2433]">
+                  <% if (recentBookings && recentBookings.length > 0) { %>
+                    <% recentBookings.forEach(function(b) { %>
+                      <tr class="hover:bg-[#131722] transition-colors">
+                        <td class="py-2.5 px-3">
+                          <code class="text-indigo-300 font-mono font-semibold"><%= b.booking_ref %></code>
+                        </td>
+                        <td class="py-2.5 px-3">
+                          <div class="font-medium text-white"><%= b.customer_name %></div>
+                          <div class="text-slate-500 text-[10px] font-mono"><%= b.customer_email %></div>
+                        </td>
+                        <td class="py-2.5 px-3">
+                          <div class="text-slate-200 truncate max-w-[140px] font-medium"><%= b.movie_title %></div>
+                          <div class="text-slate-500 text-[10px] font-mono"><%= b.theater_name %></div>
+                        </td>
+                        <td class="py-2.5 px-3 font-mono font-bold text-white">
+                          ₹<%= Number(b.total_amount).toFixed(2) %>
+                        </td>
+                        <td class="py-2.5 px-3">
+                          <% if (b.status === 'confirmed') { %>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Confirmed</span>
+                          <% } else if (b.status === 'pending') { %>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-amber-500/15 text-amber-300 border border-amber-500/30">Pending</span>
+                          <% } else { %>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-slate-800 text-slate-300 border border-slate-700"><%= b.status %></span>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="5" class="text-center text-slate-500 py-4 font-mono">No booking telemetry recorded.</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Payments Table -->
+        <div class="col-lg-5">
+          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 shadow-xl">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="text-sm font-bold text-white font-mono uppercase tracking-wider mb-0 flex items-center gap-2">
+                <i class="bi bi-credit-card text-cyan-400"></i> Settlement Ledger
+              </h5>
+              <a href="/admin/payments" class="text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors">Inspect All &rarr;</a>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-100 text-left text-xs font-sans">
+                <thead>
+                  <tr class="text-slate-400 border-b border-[#1E2433] font-mono text-[11px]">
+                    <th class="py-2.5 px-3">TXN HASH</th>
+                    <th class="py-2.5 px-3">GATEWAY</th>
+                    <th class="py-2.5 px-3">AMOUNT</th>
+                    <th class="py-2.5 px-3">STATE</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[#1E2433]">
+                  <% if (recentPayments && recentPayments.length > 0) { %>
+                    <% recentPayments.forEach(function(p) { %>
+                      <tr class="hover:bg-[#131722] transition-colors">
+                        <td class="py-2.5 px-3">
+                          <div class="font-mono text-slate-200 truncate max-w-[110px]"><%= p.transaction_ref %></div>
+                          <div class="text-slate-500 text-[10px] font-mono"><%= p.customer_name %></div>
+                        </td>
+                        <td class="py-2.5 px-3">
+                          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase bg-[#181E2E] text-slate-300 border border-[#21293B]"><%= p.payment_method %></span>
+                        </td>
+                        <td class="py-2.5 px-3 font-mono font-bold text-white">
+                          ₹<%= Number(p.amount).toFixed(2) %>
+                        </td>
+                        <td class="py-2.5 px-3">
+                          <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase <%= p.payment_status === 'success' ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-300 border border-rose-500/30' %>">
+                            <%= p.payment_status %>
+                          </span>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="4" class="text-center text-slate-500 py-4 font-mono">No settlement records found.</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Raw Chart Data for Client Scripts -->
+<script id="dailyBookingsData" type="application/json"><%- JSON.stringify(dailyBookings || []) %></script>
+<script id="movieRevenueData" type="application/json"><%- JSON.stringify(movieRevenue || []) %></script>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Velocity Trends Line Chart (ZeBeyond Indigo/Cyan neon styling)
+    const trendCtx = document.getElementById('trendChart');
+    if (trendCtx) {
+      const dailyDataRaw = document.getElementById('dailyBookingsData');
+      const dailyData = dailyDataRaw ? JSON.parse(dailyDataRaw.textContent || '[]') : [];
+      const labels = dailyData.map(d => new Date(d.report_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      const bookingsCount = dailyData.map(d => d.total_bookings);
+      const revenues = dailyData.map(d => Number(d.daily_revenue));
+
+      new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: labels.length > 0 ? labels : ['Today'],
+          datasets: [
+            {
+              label: 'Daily Revenue (₹)',
+              data: revenues.length > 0 ? revenues : [0],
+              borderColor: '#00F0FF',
+              backgroundColor: 'rgba(0, 240, 255, 0.08)',
+              borderWidth: 2,
+              tension: 0.35,
+              fill: true,
+              pointBackgroundColor: '#00F0FF',
+              pointBorderColor: '#07080C',
+              pointRadius: 4,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Confirmed Bookings',
+              data: bookingsCount.length > 0 ? bookingsCount : [0],
+              borderColor: '#6366F1',
+              backgroundColor: 'rgba(99, 102, 241, 0.1)',
+              borderWidth: 2,
+              tension: 0.35,
+              pointBackgroundColor: '#6366F1',
+              pointBorderColor: '#07080C',
+              pointRadius: 4,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 10 } }
+            },
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: {
+                color: '#00F0FF',
+                font: { family: 'JetBrains Mono', size: 10 },
+                callback: v => '₹' + v
+              }
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              grid: { drawOnChartArea: false },
+              ticks: {
+                color: '#6366F1',
+                stepSize: 1,
+                font: { family: 'JetBrains Mono', size: 10 }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: '#94A3B8',
+                boxWidth: 10,
+                font: { family: 'JetBrains Mono', size: 11 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 2. Movie Revenue Doughnut Chart
+    const pieCtx = document.getElementById('moviePieChart');
+    if (pieCtx) {
+      const movieDataRaw = document.getElementById('movieRevenueData');
+      const movieData = movieDataRaw ? JSON.parse(movieDataRaw.textContent || '[]') : [];
+      const movieLabels = movieData.map(m => m.movie_title);
+      const movieTotals = movieData.map(m => Number(m.total_revenue));
+
+      new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+          labels: movieLabels.length > 0 ? movieLabels : ['No Settled Sales'],
+          datasets: [{
+            data: movieTotals.length > 0 ? movieTotals : [1],
+            backgroundColor: [
+              '#00F0FF', '#6366F1', '#10B981', '#8B5CF6', '#F59E0B', '#64748B'
+            ],
+            borderColor: '#0B0D13',
+            borderWidth: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#94A3B8',
+                boxWidth: 8,
+                padding: 12,
+                font: { family: 'JetBrains Mono', size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

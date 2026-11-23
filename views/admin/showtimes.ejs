@@ -1,0 +1,273 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <%- include('../partials/admin-sidebar') %>
+
+    <div class="col-lg-9 col-xl-10 p-4 p-md-5">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary-subtle">
+        <div>
+          <h2 class="fw-bold text-white mb-0">Showtime Scheduling &amp; Inventory</h2>
+          <p class="text-secondary small mb-0">Schedule screenings, set base ticket prices, calculate end times with buffer, and auto-generate seat inventories</p>
+        </div>
+        <button type="button" class="btn btn-danger rounded-pill px-4 fw-semibold" data-bs-toggle="modal" data-bs-target="#addShowtimeModal">
+          <i class="bi bi-calendar-plus me-1"></i> Schedule Showtime
+        </button>
+      </div>
+
+      <!-- Filter Controls Bar -->
+      <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 p-3 mb-4 shadow-sm">
+        <form action="/admin/showtimes" method="GET" class="row g-2 align-items-center">
+          <div class="col-md-4">
+            <select name="movie_id" class="form-select bg-dark text-light border-secondary-subtle" onchange="this.form.submit()">
+              <option value="">All Movies</option>
+              <% if (movies) { %>
+                <% movies.forEach(function(m) { %>
+                  <option value="<%= m.movie_id %>" <%= String(filters.movie_id) === String(m.movie_id) ? 'selected' : '' %>>
+                    <%= m.title %>
+                  </option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select name="theater_id" class="form-select bg-dark text-light border-secondary-subtle" onchange="this.form.submit()">
+              <option value="">All Theaters</option>
+              <% if (theaters) { %>
+                <% theaters.forEach(function(t) { %>
+                  <option value="<%= t.theater_id %>" <%= String(filters.theater_id) === String(t.theater_id) ? 'selected' : '' %>>
+                    <%= t.name %> (<%= t.city %>)
+                  </option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select name="status" class="form-select bg-dark text-light border-secondary-subtle" onchange="this.form.submit()">
+              <option value="">All Statuses</option>
+              <option value="scheduled" <%= filters.status === 'scheduled' ? 'selected' : '' %>>Scheduled</option>
+              <option value="cancelled" <%= filters.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+              <option value="completed" <%= filters.status === 'completed' ? 'selected' : '' %>>Completed</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <% if (filters.movie_id || filters.theater_id || filters.status) { %>
+              <a href="/admin/showtimes" class="btn btn-outline-secondary btn-sm rounded-pill text-light">Clear</a>
+            <% } %>
+          </div>
+        </form>
+      </div>
+
+      <!-- Showtimes Table -->
+      <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 p-4 shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+              <tr class="text-secondary small">
+                <th>MOVIE</th>
+                <th>THEATER &amp; SCREEN</th>
+                <th>FORMAT</th>
+                <th>START TIME</th>
+                <th>END TIME</th>
+                <th>PRICE</th>
+                <th>SEATS OCCUPANCY</th>
+                <th>STATUS</th>
+                <th class="text-end">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (showtimes && showtimes.length > 0) { %>
+                <% showtimes.forEach(function(s) { %>
+                  <tr>
+                    <td>
+                      <div class="fw-bold text-white"><%= s.movie_title %></div>
+                      <div class="small text-secondary"><%= s.duration_min %> min &bull; <%= s.certification %></div>
+                    </td>
+                    <td>
+                      <div class="text-light"><%= s.theater_name %></div>
+                      <div class="small text-secondary"><%= s.screen_name %> (<%= s.theater_city %>)</div>
+                    </td>
+                    <td><span class="badge text-bg-warning text-dark fw-bold"><%= s.format %></span></td>
+                    <td>
+                      <div><%= new Date(s.start_time).toLocaleDateString() %></div>
+                      <span class="text-warning fw-bold"><%= new Date(s.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></span>
+                    </td>
+                    <td class="text-secondary small">
+                      <%= new Date(s.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %>
+                    </td>
+                    <td class="fw-bold text-success">₹<%= Number(s.base_price).toFixed(2) %></td>
+                    <td>
+                      <span class="badge <%= s.available_seats_count > 0 ? 'bg-info-subtle text-info' : 'bg-danger-subtle text-danger' %> border">
+                        <%= s.booked_seats_count %> Booked / <%= s.available_seats_count %> Left
+                      </span>
+                    </td>
+                    <td>
+                      <% if (s.status === 'scheduled') { %>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">Scheduled</span>
+                      <% } else if (s.status === 'cancelled') { %>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Cancelled</span>
+                      <% } else { %>
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Completed</span>
+                      <% } %>
+                    </td>
+                    <td class="text-end">
+                      <% if (s.status === 'scheduled') { %>
+                        <form action="/admin/showtimes/<%= s.showtime_id %>/cancel" method="POST" class="d-inline" onsubmit="return confirm('Cancel this scheduled showtime?');">
+                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                          <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill" title="Cancel Showtime">
+                            <i class="bi bi-x-circle me-1"></i> Cancel
+                          </button>
+                        </form>
+                      <% } else { %>
+                        <span class="text-secondary small">&mdash;</span>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="9" class="text-center text-secondary py-5">No showtimes found matching criteria.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Showtime Modal -->
+<div class="modal fade" id="addShowtimeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content bg-dark border border-secondary-subtle text-light">
+      <form action="/admin/showtimes" method="POST">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+        <div class="modal-header border-secondary-subtle">
+          <h5 class="modal-title fw-bold"><i class="bi bi-calendar-plus me-2 text-danger"></i>Schedule New Showtime</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <!-- Movie Selection -->
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Select Movie <span class="text-danger">*</span></label>
+              <select name="movie_id" id="modalMovieSelect" class="form-select bg-black text-light border-secondary-subtle" required>
+                <option value="">-- Choose Movie --</option>
+                <% if (movies) { %>
+                  <% movies.forEach(function(m) { %>
+                    <option value="<%= m.movie_id %>" data-duration="<%= m.duration_min %>">
+                      <%= m.title %> (<%= m.duration_min %> min &bull; <%= m.certification %>)
+                    </option>
+                  <% }); %>
+                <% } %>
+              </select>
+            </div>
+
+            <!-- Theater Selection -->
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Select Theater <span class="text-danger">*</span></label>
+              <select name="theater_id" id="modalTheaterSelect" class="form-select bg-black text-light border-secondary-subtle" required>
+                <option value="">-- Choose Theater --</option>
+                <% if (theaters) { %>
+                  <% theaters.forEach(function(t) { %>
+                    <option value="<%= t.theater_id %>"><%= t.name %> (<%= t.city %>)</option>
+                  <% }); %>
+                <% } %>
+              </select>
+            </div>
+
+            <!-- Screen Selection (Dynamic filter based on theater) -->
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Select Screen <span class="text-danger">*</span></label>
+              <select name="screen_id" id="modalScreenSelect" class="form-select bg-black text-light border-secondary-subtle" required>
+                <option value="">-- Choose Screen --</option>
+                <% if (screens) { %>
+                  <% screens.forEach(function(sc) { %>
+                    <option value="<%= sc.screen_id %>" data-theater="<%= sc.theater_id %>" data-type="<%= sc.screen_type %>">
+                      <%= sc.theater_name %> &bull; <%= sc.screen_name %> (<%= sc.screen_type %>, <%= sc.total_capacity %> seats)
+                    </option>
+                  <% }); %>
+                <% } %>
+              </select>
+            </div>
+
+            <!-- Format & Language -->
+            <div class="col-md-3">
+              <label class="form-label small fw-semibold">Screening Format</label>
+              <select name="format" class="form-select bg-black text-light border-secondary-subtle">
+                <option value="2D">2D</option>
+                <option value="3D">3D</option>
+                <option value="IMAX">IMAX</option>
+                <option value="4DX">4DX</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-semibold">Audio Language</label>
+              <input type="text" name="language" class="form-control bg-black text-light border-secondary-subtle" value="English" required>
+            </div>
+
+            <!-- Date and Start Time -->
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Show Date <span class="text-danger">*</span></label>
+              <input type="date" name="start_date" class="form-control bg-black text-light border-secondary-subtle" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Start Time <span class="text-danger">*</span></label>
+              <input type="time" name="start_time_of_day" class="form-control bg-black text-light border-secondary-subtle" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Interval &amp; Cleaning Buffer (Min)</label>
+              <input type="number" name="buffer_min" class="form-control bg-black text-light border-secondary-subtle" value="20" min="5" max="60" required>
+            </div>
+
+            <!-- Base Ticket Price -->
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Standard Base Ticket Price (₹) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text bg-black border-secondary-subtle text-secondary">₹</span>
+                <input type="number" name="base_price" class="form-control bg-black text-light border-secondary-subtle" placeholder="350.00" step="0.50" min="50" required>
+              </div>
+              <div class="form-text text-secondary small">Tier multiplier: Standard 1.0x &bull; Premium 1.35x &bull; Recliner 1.80x</div>
+            </div>
+
+            <div class="col-12 mt-3 pt-3 border-top border-secondary-subtle">
+              <div class="p-3 bg-dark bg-opacity-50 rounded-3 border border-secondary-subtle small text-secondary">
+                <i class="bi bi-info-circle text-info me-1"></i>
+                <strong>Automated Inventory Generation:</strong> Creating this showtime will atomically generate <code>showtime_seats</code> inventory for all active seats on the selected screen using tiered pricing calculations.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-secondary-subtle">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger rounded-pill fw-semibold">Confirm &amp; Generate Inventory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Dynamic filtering of screen dropdown based on selected theater
+document.addEventListener('DOMContentLoaded', () => {
+  const theaterSelect = document.getElementById('modalTheaterSelect');
+  const screenSelect = document.getElementById('modalScreenSelect');
+  if (!theaterSelect || !screenSelect) return;
+
+  const originalOptions = Array.from(screenSelect.options);
+
+  theaterSelect.addEventListener('change', () => {
+    const selectedTheaterId = theaterSelect.value;
+    screenSelect.innerHTML = '<option value="">-- Choose Screen --</option>';
+
+    originalOptions.forEach(opt => {
+      if (opt.value && opt.dataset.theater === selectedTheaterId) {
+        screenSelect.appendChild(opt.cloneNode(true));
+      }
+    });
+  });
+});
+</script>
+
+<%- include('../partials/footer') %>

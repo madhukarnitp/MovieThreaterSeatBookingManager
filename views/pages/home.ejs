@@ -1,0 +1,365 @@
+<%- include('../partials/header') %>
+
+<!-- 1. Hero Banner Featuring a Premiere Movie -->
+<% if (typeof featuredMovie !== 'undefined' && featuredMovie) { %>
+  <section class="hero-cinema py-5 mb-5 border-bottom border-secondary-subtle">
+    <div class="container py-lg-4">
+      <div class="row align-items-center g-5">
+        
+        <!-- Hero Details Column -->
+        <div class="col-lg-7 order-2 order-lg-1">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge text-bg-warning fw-bold px-3 py-2 rounded-pill text-dark">
+              <i class="bi bi-star-fill me-1"></i> FEATURED PREMIERE
+            </span>
+            <span class="badge bg-secondary-subtle text-light border border-secondary-subtle px-3 py-2 rounded-pill">
+              <%= featuredMovie.certification %> Rating
+            </span>
+            <span class="text-secondary small">
+              <i class="bi bi-clock me-1"></i> <%= featuredMovie.formattedDuration %>
+            </span>
+          </div>
+
+          <h1 class="display-3 fw-bold text-white mb-3 tracking-wide">
+            <%= featuredMovie.title %>
+          </h1>
+
+          <!-- Genres Pills -->
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <% featuredMovie.genreList.forEach(function(g) { %>
+              <a href="/movies?genre=<%= encodeURIComponent(g) %>" class="badge bg-dark text-warning border border-warning border-opacity-25 text-decoration-none px-3 py-2 rounded-pill">
+                <%= g %>
+              </a>
+            <% }); %>
+            <span class="badge bg-dark text-secondary border border-secondary-subtle px-3 py-2 rounded-pill">
+              <i class="bi bi-translate me-1"></i> <%= featuredMovie.language %>
+            </span>
+          </div>
+
+          <p class="lead text-secondary-emphasis mb-4 pe-lg-4" style="max-width: 650px;">
+            <%= featuredMovie.description %>
+          </p>
+
+          <!-- CTA Buttons -->
+          <div class="d-flex flex-wrap align-items-center gap-3">
+            <a href="/movies/<%= featuredMovie.movie_id %>/showtimes" class="btn btn-warning btn-lg px-4 fw-semibold rounded-pill shadow-sm">
+              <i class="bi bi-ticket-perforated-fill me-2"></i> Book Tickets
+            </a>
+            <a href="/movies/<%= featuredMovie.movie_id %>" class="btn btn-outline-light btn-lg px-4 rounded-pill">
+              <i class="bi bi-info-circle me-2"></i> View Details
+            </a>
+            <% if (featuredMovie.trailer_url) { %>
+              <a href="<%= featuredMovie.trailer_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-link text-warning text-decoration-none px-3">
+                <i class="bi bi-play-circle-fill fs-5 me-1 align-middle"></i> Watch Trailer
+              </a>
+            <% } %>
+          </div>
+
+          <!-- Quick booking stats highlight -->
+          <div class="d-flex align-items-center gap-4 mt-4 pt-3 border-top border-secondary-subtle small text-secondary">
+            <div>
+              <i class="bi bi-projector text-warning me-1"></i>
+              <strong class="text-light"><%= featuredMovie.active_shows_count %></strong> Active Showtimes Today
+            </div>
+            <% if (featuredMovie.min_price) { %>
+              <div>
+                <i class="bi bi-tag text-success me-1"></i>
+                Tickets from <strong class="text-light">₹<%= Number(featuredMovie.min_price).toFixed(2) %></strong>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Hero Poster Column -->
+        <div class="col-lg-5 order-1 order-lg-2 text-center">
+          <div class="position-relative d-inline-block">
+            <div class="hero-poster-frame rounded-4 overflow-hidden shadow-lg mx-auto" style="max-width: 340px; aspect-ratio: 2/3;">
+              <img 
+                src="<%= featuredMovie.poster_path %>" 
+                alt="<%= featuredMovie.title %> Poster" 
+                class="img-fluid w-100 h-100 object-fit-cover"
+                onerror="this.src='/images/posters/fallback.svg'"
+              >
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+<% } %>
+
+<div class="container pb-5">
+  <!-- 2. Search & Filter Bar -->
+  <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 p-3 p-md-4 mb-5 shadow-sm">
+    <form action="/movies" method="GET" class="row g-3 align-items-center">
+      <div class="col-md-5">
+        <div class="input-group">
+          <span class="input-group-text bg-dark border-secondary-subtle text-secondary">
+            <i class="bi bi-search text-warning"></i>
+          </span>
+          <input 
+            type="text" 
+            name="search" 
+            class="form-control bg-dark text-light border-secondary-subtle" 
+            placeholder="Search movie title, franchise..."
+          >
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <select name="genre" class="form-select bg-dark text-light border-secondary-subtle">
+          <option value="all">All Genres</option>
+          <% if (typeof filterOptions !== 'undefined' && filterOptions.genres) { %>
+            <% filterOptions.genres.forEach(function(g) { %>
+              <option value="<%= g.slug %>"><%= g.name %></option>
+            <% }); %>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <select name="language" class="form-select bg-dark text-light border-secondary-subtle">
+          <option value="all">All Languages</option>
+          <% if (typeof filterOptions !== 'undefined' && filterOptions.languages) { %>
+            <% filterOptions.languages.forEach(function(lang) { %>
+              <option value="<%= lang %>"><%= lang %></option>
+            <% }); %>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-warning w-100 fw-semibold">
+          <i class="bi bi-funnel me-1"></i> Find Movies
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 3. Now Showing Section -->
+  <section class="mb-5" id="now-showing">
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom border-secondary-subtle pb-3">
+      <div>
+        <div class="text-warning small text-uppercase fw-bold tracking-wider mb-1">
+          <i class="bi bi-film me-1"></i> In Theaters Now
+        </div>
+        <h2 class="display-6 fw-bold text-white mb-0">Now Showing</h2>
+      </div>
+      <a href="/movies?status=now_showing" class="btn btn-outline-warning btn-sm rounded-pill px-3">
+        View All <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+
+    <% if (typeof nowShowing !== 'undefined' && nowShowing && nowShowing.length > 0) { %>
+      <div class="row g-4">
+        <% nowShowing.forEach(function(movie) { %>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="movie-card h-100 d-flex flex-column">
+              <!-- Poster Frame -->
+              <div class="movie-poster-wrapper">
+                <img 
+                  src="<%= movie.poster_path %>" 
+                  alt="<%= movie.title %>" 
+                  class="movie-poster-img"
+                  loading="lazy"
+                  onerror="this.src='/images/posters/fallback.svg'"
+                >
+                <div class="poster-overlay-top">
+                  <span class="badge text-bg-dark border border-secondary-subtle fw-semibold">
+                    <%= movie.certification %>
+                  </span>
+                  <% if (movie.formatList && movie.formatList.length > 0) { %>
+                    <span class="badge text-bg-warning text-dark fw-bold">
+                      <%= movie.formatList[0] %>
+                    </span>
+                  <% } %>
+                </div>
+                <div class="poster-overlay-bottom">
+                  <span class="text-white small fw-bold"><i class="bi bi-clock me-1"></i><%= movie.formattedDuration %></span>
+                </div>
+              </div>
+
+              <!-- Content Body -->
+              <div class="card-body p-3 d-flex flex-column flex-grow-1">
+                <h5 class="fw-bold text-white text-truncate mb-1" title="<%= movie.title %>">
+                  <a href="/movies/<%= movie.movie_id %>" class="text-white text-decoration-none hover-light">
+                    <%= movie.title %>
+                  </a>
+                </h5>
+
+                <div class="small text-secondary text-truncate mb-3">
+                  <%= movie.genres || movie.language %>
+                </div>
+
+                <!-- Footer CTAs -->
+                <div class="mt-auto d-flex gap-2">
+                  <a href="/movies/<%= movie.movie_id %>/showtimes" class="btn btn-warning btn-sm flex-grow-1 fw-semibold rounded-pill">
+                    <i class="bi bi-ticket-perforated me-1"></i> Book
+                  </a>
+                  <a href="/movies/<%= movie.movie_id %>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 text-light" title="View details">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="text-center py-5 text-secondary">
+        <i class="bi bi-camera-reels display-4 mb-3 d-block text-secondary"></i>
+        <h5>No movies currently in theaters</h5>
+      </div>
+    <% } %>
+  </section>
+
+  <!-- 4. Upcoming Movies Section -->
+  <section class="mb-5" id="upcoming">
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom border-secondary-subtle pb-3">
+      <div>
+        <div class="text-info small text-uppercase fw-bold tracking-wider mb-1">
+          <i class="bi bi-stars me-1"></i> Coming Soon
+        </div>
+        <h2 class="display-6 fw-bold text-white mb-0">Upcoming Releases</h2>
+      </div>
+      <a href="/movies?status=upcoming" class="btn btn-outline-info btn-sm rounded-pill px-3">
+        See All Releases <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+
+    <% if (typeof upcoming !== 'undefined' && upcoming && upcoming.length > 0) { %>
+      <div class="row g-4">
+        <% upcoming.forEach(function(movie) { %>
+          <div class="col-6 col-md-4 col-lg-4">
+            <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 h-100 overflow-hidden hover-lift">
+              <div class="row g-0 h-100 align-items-center">
+                <div class="col-5 h-100">
+                  <div style="aspect-ratio: 2/3;" class="h-100">
+                    <img 
+                      src="<%= movie.poster_path %>" 
+                      alt="<%= movie.title %>" 
+                      class="img-fluid w-100 h-100 object-fit-cover"
+                      onerror="this.src='/images/posters/fallback.svg'"
+                    >
+                  </div>
+                </div>
+                <div class="col-7">
+                  <div class="card-body p-3">
+                    <span class="badge bg-info-subtle text-info border border-info-subtle small mb-2">
+                      Coming <%= new Date(movie.release_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) %>
+                    </span>
+                    <h5 class="fw-bold text-white mb-1">
+                      <a href="/movies/<%= movie.movie_id %>" class="text-white text-decoration-none hover-light">
+                        <%= movie.title %>
+                      </a>
+                    </h5>
+                    <div class="text-secondary small mb-2"><%= movie.genres %></div>
+                    <p class="text-secondary small mb-3 text-truncate-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                      <%= movie.description %>
+                    </p>
+                    <a href="/movies/<%= movie.movie_id %>" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                      <i class="bi bi-bell me-1"></i> Preview &amp; Details
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </section>
+
+  <!-- 5. Popular Movies Section (Ranked by Sales) -->
+  <section class="mb-5" id="popular">
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom border-secondary-subtle pb-3">
+      <div>
+        <div class="text-danger small text-uppercase fw-bold tracking-wider mb-1">
+          <i class="bi bi-fire me-1"></i> Fan Favorites
+        </div>
+        <h2 class="display-6 fw-bold text-white mb-0">Most Popular Movies</h2>
+      </div>
+      <span class="badge text-bg-secondary"><i class="bi bi-graph-up me-1"></i> Box Office Leaderboard</span>
+    </div>
+
+    <% if (typeof popular !== 'undefined' && popular && popular.length > 0) { %>
+      <div class="row g-4">
+        <% popular.forEach(function(movie, index) { %>
+          <div class="col-md-6 col-lg-3">
+            <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 h-100 p-3 hover-lift position-relative overflow-hidden">
+              <div class="position-absolute top-0 end-0 pe-3 pt-2 text-warning display-4 fw-black opacity-25" style="font-weight: 900;">
+                #<%= index + 1 %>
+              </div>
+
+              <div class="d-flex gap-3 align-items-center mb-3">
+                <div style="width: 70px; aspect-ratio: 2/3;" class="rounded-3 overflow-hidden flex-shrink-0 shadow-sm">
+                  <img 
+                    src="<%= movie.poster_path %>" 
+                    alt="<%= movie.title %>" 
+                    class="w-100 h-100 object-fit-cover"
+                    onerror="this.src='/images/posters/fallback.svg'"
+                  >
+                </div>
+                <div>
+                  <h6 class="fw-bold text-white mb-1 text-truncate" style="max-width: 160px;" title="<%= movie.title %>">
+                    <a href="/movies/<%= movie.movie_id %>" class="text-white text-decoration-none">
+                      <%= movie.title %>
+                    </a>
+                  </h6>
+                  <div class="text-secondary small mb-1"><%= movie.formattedDuration %> &bull; <%= movie.certification %></div>
+                  <div class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 small">
+                    <i class="bi bi-ticket me-1"></i> <%= movie.tickets_sold %> Tickets Sold
+                  </div>
+                </div>
+              </div>
+
+              <a href="/movies/<%= movie.movie_id %>" class="btn btn-outline-warning btn-sm w-100 rounded-pill mt-auto">
+                Explore Showtime Options
+              </a>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </section>
+
+  <!-- 6. Cinema Experience Highlight -->
+  <section class="p-5 rounded-4 bg-secondary bg-opacity-10 border border-secondary-subtle">
+    <div class="row align-items-center g-4 text-center text-md-start">
+      <div class="col-md-3 text-center">
+        <div class="d-inline-flex p-3 rounded-circle bg-warning bg-opacity-10 text-warning fs-1 mb-2">
+          <i class="bi bi-display"></i>
+        </div>
+        <h5 class="fw-bold text-white">IMAX with Laser</h5>
+        <p class="text-secondary small mb-0">Unprecedented clarity, vibrant color, and thunderous immersive acoustics.</p>
+      </div>
+
+      <div class="col-md-3 text-center">
+        <div class="d-inline-flex p-3 rounded-circle bg-info bg-opacity-10 text-info fs-1 mb-2">
+          <i class="bi bi-soundwave"></i>
+        </div>
+        <h5 class="fw-bold text-white">Dolby Atmos Sound</h5>
+        <p class="text-secondary small mb-0">Multi-dimensional audio that flows all around you in breathtaking depth.</p>
+      </div>
+
+      <div class="col-md-3 text-center">
+        <div class="d-inline-flex p-3 rounded-circle bg-danger bg-opacity-10 text-danger fs-1 mb-2">
+          <i class="bi bi-lightning-charge"></i>
+        </div>
+        <h5 class="fw-bold text-white">4DX Dynamic Motion</h5>
+        <p class="text-secondary small mb-0">Synchronized environmental effects: motion, wind, water, and scent.</p>
+      </div>
+
+      <div class="col-md-3 text-center">
+        <div class="d-inline-flex p-3 rounded-circle bg-success bg-opacity-10 text-success fs-1 mb-2">
+          <i class="bi bi-cup-straw"></i>
+        </div>
+        <h5 class="fw-bold text-white">Luxury Recliners</h5>
+        <p class="text-secondary small mb-0">Motorized leather loungers with full food and gourmet beverage service.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

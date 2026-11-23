@@ -1,0 +1,112 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Admin Sidebar Partial -->
+    <%- include('../partials/admin-sidebar') %>
+
+    <!-- Main Admin Content Area -->
+    <div class="col-lg-9 col-xl-10 p-4 p-md-5">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary-subtle">
+        <div>
+          <h2 class="fw-bold text-white mb-0">
+            <i class="bi bi-qr-code-scan text-danger me-2"></i>Ticket Verification &amp; Check-In
+          </h2>
+          <p class="text-secondary small mb-0">Validate customer tickets, prevent duplicate usage, and record gate admissions</p>
+        </div>
+      </div>
+
+      <div class="row g-4 justify-content-center">
+        <div class="col-lg-8">
+          
+          <!-- Verification Result Card -->
+          <% if (result) { %>
+            <div class="card bg-success bg-opacity-10 border border-success border-opacity-50 rounded-4 p-4 shadow-lg mb-4">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 48px; height: 48px; font-size: 1.5rem;">
+                  <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div>
+                  <h4 class="text-success fw-bold mb-0">ADMISSION GRANTED</h4>
+                  <div class="text-light small"><%= result.message %></div>
+                </div>
+              </div>
+
+              <div class="bg-black p-3 rounded-3 border border-success border-opacity-25">
+                <div class="row g-2">
+                  <div class="col-sm-6">
+                    <span class="text-secondary small">Ticket Number:</span>
+                    <div class="font-monospace text-warning fw-bold"><%= result.ticketNumber %></div>
+                  </div>
+                  <div class="col-sm-6">
+                    <span class="text-secondary small">Attendee:</span>
+                    <div class="text-white fw-bold"><%= result.customerName %></div>
+                  </div>
+                  <div class="col-sm-6">
+                    <span class="text-secondary small">Movie:</span>
+                    <div class="text-white"><%= result.movieTitle %></div>
+                  </div>
+                  <div class="col-sm-6">
+                    <span class="text-secondary small">Location &amp; Seat:</span>
+                    <div class="text-white"><strong><%= result.theaterName %></strong> &bull; <%= result.screenName %> &bull; <span class="badge bg-warning text-dark font-monospace fs-6">Seat <%= result.seat %></span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+
+          <!-- Error Alert -->
+          <% if (error) { %>
+            <div class="card bg-danger bg-opacity-10 border border-danger border-opacity-50 rounded-4 p-4 shadow-lg mb-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 48px; height: 48px; font-size: 1.5rem;">
+                  <i class="bi bi-x-circle-fill"></i>
+                </div>
+                <div>
+                  <h4 class="text-danger fw-bold mb-0">ADMISSION REJECTED</h4>
+                  <div class="text-light"><%= error %></div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+
+          <!-- Scan / Enter Form -->
+          <div class="card bg-dark border-secondary border-opacity-25 rounded-4 p-4 shadow-lg">
+            <h5 class="text-white fw-bold mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+              <i class="bi bi-upc-scan text-warning me-2"></i>Scan or Enter Ticket Code
+            </h5>
+
+            <form action="/admin/tickets/verify" method="POST">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+              <div class="mb-4">
+                <label class="form-label text-light small fw-semibold">Ticket Number or QR Code Payload</label>
+                <div class="input-group input-group-lg">
+                  <span class="input-group-text bg-black border-secondary border-opacity-50 text-warning">
+                    <i class="bi bi-ticket-perforated"></i>
+                  </span>
+                  <input 
+                    type="text" 
+                    name="ticket_identifier" 
+                    class="form-control bg-black border-secondary border-opacity-50 text-white font-monospace" 
+                    placeholder="e.g. TKT-2026-0001-A1 or scan payload" 
+                    autofocus 
+                    required
+                  >
+                  <button class="btn btn-warning px-4 fw-bold" type="submit">
+                    <i class="bi bi-check2-circle me-1"></i> Check-In
+                  </button>
+                </div>
+                <div class="form-text text-secondary">
+                  Optical USB/Bluetooth barcode/QR scanners automatically paste and submit.
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

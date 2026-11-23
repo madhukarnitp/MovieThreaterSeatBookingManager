@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#18181b"/>
+    </linearGradient>
+    <radialGradient id="fireGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fdba74"/>
+      <stop offset="70%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="600" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle Grid texture -->
+  <line x1="20" y1="20" x2="380" y2="20" stroke="#facc15" stroke-width="1" opacity="0.2"/>
+  <line x1="20" y1="580" x2="380" y2="580" stroke="#facc15" stroke-width="1" opacity="0.2"/>
+  <line x1="20" y1="20" x2="20" y2="580" stroke="#facc15" stroke-width="1" opacity="0.2"/>
+  <line x1="380" y1="20" x2="380" y2="580" stroke="#facc15" stroke-width="1" opacity="0.2"/>
+
+  <!-- Top Badges -->
+  <rect x="35" y="35" width="42" height="22" rx="4" fill="#0f172a" stroke="#facc15" stroke-width="1"/>
+  <text x="56" y="50" font-family="'Inter', sans-serif" font-size="11" font-weight="bold" fill="#facc15" text-anchor="middle">A</text>
+
+  <rect x="305" y="35" width="60" height="22" rx="4" fill="#0f172a" stroke="#facc15" stroke-width="1"/>
+  <text x="335" y="50" font-family="'Inter', sans-serif" font-size="11" font-weight="bold" fill="#f8fafc" text-anchor="middle">152m</text>
+
+  <!-- Central Artwork Icon -->
+  <g>
+    <path d="M120,240 C140,210 170,230 190,250 C195,235 205,235 210,250 C230,230 260,210 280,240 C280,270 250,290 200,310 C150,290 120,270 120,240 Z" fill="#facc15"/>
+  </g>
+
+  <!-- Cinema Brand Tag -->
+  <text x="200" y="440" font-family="'Inter', sans-serif" font-size="11" font-weight="700" fill="#facc15" letter-spacing="4" text-anchor="middle">CINESEAT EXCLUSIVE</text>
+
+  <!-- Title -->
+  <text x="200" y="475" font-family="'Inter', sans-serif" font-size="24" font-weight="900" fill="#ffffff" letter-spacing="2" text-anchor="middle">THE DARK KNIGHT</text>
+
+  <!-- Tagline -->
+  <text x="200" y="505" font-family="'Inter', sans-serif" font-size="9" font-weight="600" fill="#94a3b8" letter-spacing="1.5" text-anchor="middle">WHY SO SERIOUS?</text>
+
+  <!-- Bottom Details -->
+  <text x="200" y="555" font-family="'Inter', sans-serif" font-size="11" font-weight="bold" fill="#facc15" text-anchor="middle">IN THEATERS &bull; 2008</text>
+</svg>

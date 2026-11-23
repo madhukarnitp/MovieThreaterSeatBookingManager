@@ -1,0 +1,88 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <%- include('../partials/admin-sidebar') %>
+
+    <div class="col-lg-9 col-xl-10 p-4 p-md-5">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary-subtle">
+        <div>
+          <h2 class="fw-bold text-white mb-0">Customer Bookings &amp; Tickets</h2>
+          <p class="text-secondary small mb-0">Review all placed customer reservations, booking references, and seating details</p>
+        </div>
+      </div>
+
+      <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 p-4 shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+              <tr class="text-secondary small">
+                <th>REF #</th>
+                <th>CUSTOMER</th>
+                <th>PHONE</th>
+                <th>MOVIE &amp; THEATER</th>
+                <th>SHOWTIME</th>
+                <th>SEATS</th>
+                <th>TOTAL</th>
+                <th>PAYMENT</th>
+                <th>STATUS</th>
+                <th class="text-end">ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (bookings && bookings.length > 0) { %>
+                <% bookings.forEach(function(b) { %>
+                  <tr>
+                    <td><code><%= b.booking_ref %></code></td>
+                    <td>
+                      <div class="fw-bold text-white"><%= b.customer_name %></div>
+                      <div class="small text-secondary"><%= b.customer_email %></div>
+                    </td>
+                    <td class="small text-secondary"><%= b.customer_phone || 'N/A' %></td>
+                    <td>
+                      <div class="text-light"><%= b.movie_title %></div>
+                      <div class="small text-secondary"><%= b.theater_name %> &bull; <%= b.screen_name %></div>
+                    </td>
+                    <td class="small">
+                      <div><%= new Date(b.start_time).toLocaleDateString() %></div>
+                      <span class="text-warning"><%= new Date(b.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></span>
+                    </td>
+                    <td><span class="badge text-bg-secondary"><%= b.seats_count %> seat(s)</span></td>
+                    <td class="fw-bold text-light">₹<%= Number(b.total_amount).toFixed(2) %></td>
+                    <td>
+                      <% if (b.payment_status === 'success') { %>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle"><%= b.payment_method %> (Paid)</span>
+                      <% } else { %>
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle"><%= b.payment_method || 'Pending' %></span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (b.status === 'confirmed') { %>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">Confirmed</span>
+                      <% } else if (b.status === 'cancelled') { %>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Cancelled</span>
+                      <% } else { %>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle"><%= b.status %></span>
+                      <% } %>
+                    </td>
+                    <td class="text-end">
+                      <a href="/bookings/<%= b.booking_id %>/tickets" target="_blank" class="btn btn-outline-warning btn-sm rounded-pill" title="View tickets">
+                        <i class="bi bi-ticket-perforated"></i> Tickets
+                      </a>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="9" class="text-center text-secondary py-5">No customer bookings found.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

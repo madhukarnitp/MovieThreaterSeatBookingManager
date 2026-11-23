@@ -1,0 +1,78 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <%- include('../partials/admin-sidebar') %>
+
+    <div class="col-lg-9 col-xl-10 p-4 p-md-5">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary-subtle">
+        <div>
+          <h2 class="fw-bold text-white mb-0">Financial Transactions &amp; Payments</h2>
+          <p class="text-secondary small mb-0">Audit logs of payment transactions, gateway references, and refund adjustments</p>
+        </div>
+      </div>
+
+      <div class="card bg-secondary bg-opacity-10 border border-secondary-subtle rounded-4 p-4 shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+              <tr class="text-secondary small">
+                <th>TXN REF</th>
+                <th>BOOKING REF</th>
+                <th>CUSTOMER</th>
+                <th>METHOD</th>
+                <th>AMOUNT</th>
+                <th>REFUND STATUS</th>
+                <th>DATE &amp; TIME</th>
+                <th>PAYMENT STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (payments && payments.length > 0) { %>
+                <% payments.forEach(function(p) { %>
+                  <tr>
+                    <td><code><%= p.transaction_ref %></code></td>
+                    <td><code><%= p.booking_ref %></code></td>
+                    <td>
+                      <div class="text-white"><%= p.customer_name %></div>
+                      <div class="small text-secondary"><%= p.customer_email %></div>
+                    </td>
+                    <td>
+                      <span class="badge text-bg-dark border border-secondary-subtle text-uppercase"><%= p.payment_method %></span>
+                    </td>
+                    <td class="fw-bold text-light">₹<%= Number(p.amount).toFixed(2) %></td>
+                    <td>
+                      <% if (p.refund_id) { %>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                          Refunded ₹<%= Number(p.refunded_amount).toFixed(2) %> (<%= p.refund_status %>)
+                        </span>
+                      <% } else { %>
+                        <span class="text-secondary small">None</span>
+                      <% } %>
+                    </td>
+                    <td class="small text-secondary"><%= new Date(p.created_at).toLocaleString() %></td>
+                    <td>
+                      <% if (p.payment_status === 'success') { %>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">Success</span>
+                      <% } else if (p.payment_status === 'refunded') { %>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Refunded</span>
+                      <% } else { %>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><%= p.payment_status %></span>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="8" class="text-center text-secondary py-5">No payment records found.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

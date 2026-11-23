@@ -1,0 +1,117 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-slate-950/95 backdrop-blur-md sticky-top border-b border-slate-800/80 py-3 shadow-lg">
+  <div class="container">
+    <!-- Brand Logo -->
+    <a class="navbar-brand d-flex align-items-center gap-2.5 font-bold text-white group" href="/">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 transition-transform duration-200 group-hover:scale-105">
+        <i class="bi bi-film text-lg"></i>
+      </div>
+      <span class="tracking-wide text-lg">Cine<span class="text-amber-400">Seat</span></span>
+    </a>
+
+    <!-- Mobile Toggler -->
+    <button class="navbar-toggler border-0 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 transition-colors" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <!-- Main Nav Links -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ps-lg-3 gap-1">
+        <li class="nav-item">
+          <a class="nav-link rounded-lg px-3 py-1.5 text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'home' ? 'active font-semibold text-amber-400 bg-amber-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-900/60' %>" href="/">
+            <i class="bi bi-house-door me-1"></i> Home
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link rounded-lg px-3 py-1.5 text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'movies' ? 'active font-semibold text-amber-400 bg-amber-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-900/60' %>" href="/movies">
+            <i class="bi bi-camera-reels me-1"></i> Movies
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link rounded-lg px-3 py-1.5 text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'showtimes' ? 'active font-semibold text-amber-400 bg-amber-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-900/60' %>" href="/movies/showtimes">
+            <i class="bi bi-calendar-event me-1"></i> Showtimes
+          </a>
+        </li>
+
+        <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+          <li class="nav-item">
+            <a class="nav-link rounded-lg px-3 py-1.5 text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'customer-dashboard' ? 'active font-semibold text-amber-400 bg-amber-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-900/60' %>" href="/customer/dashboard">
+              <i class="bi bi-ticket-perforated me-1"></i> My Bookings
+            </a>
+          </li>
+        <% } %>
+
+        <% if (typeof currentAdmin !== 'undefined' && currentAdmin) { %>
+          <li class="nav-item">
+            <a class="nav-link rounded-lg px-3 py-1.5 text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'admin-dashboard' ? 'active font-semibold text-rose-400 bg-rose-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-900/60' %>" href="/admin/dashboard">
+              <i class="bi bi-shield-lock me-1"></i> Operations
+            </a>
+          </li>
+        <% } %>
+      </ul>
+
+      <!-- Right Header Actions (Auth / Search / Profile) -->
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <!-- Quick Search Link -->
+        <a href="/movies" class="btn btn-outline-secondary btn-sm rounded-xl px-3 text-slate-300 border-slate-700/80 hover:bg-slate-900 hover:text-white hover:border-amber-500/50 transition-all">
+          <i class="bi bi-search me-1 text-amber-400"></i> Search
+        </a>
+
+        <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+          <!-- Logged In Customer Menu -->
+          <div class="dropdown">
+            <button class="btn btn-dark btn-sm rounded-xl border border-slate-700/80 px-3 dropdown-toggle d-flex align-items-center gap-2 bg-slate-900 hover:bg-slate-800 transition-all" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle text-amber-400"></i>
+              <span class="font-medium"><%= currentUser.fullName.split(' ')[0] %></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-2xl rounded-xl border border-slate-800 bg-slate-950 p-2">
+              <li><h6 class="dropdown-header text-slate-400 text-xs truncate px-3 py-1"><%= currentUser.email %></h6></li>
+              <li><a class="dropdown-item rounded-lg px-3 py-2 text-sm text-slate-200 hover:bg-slate-800" href="/customer/bookings"><i class="bi bi-ticket-perforated me-2 text-amber-400"></i>My Bookings &amp; Tickets</a></li>
+              <li><a class="dropdown-item rounded-lg px-3 py-2 text-sm text-slate-200 hover:bg-slate-800" href="/customer/dashboard"><i class="bi bi-person me-2 text-blue-400"></i>Profile &amp; Account</a></li>
+              <li><hr class="dropdown-divider border-slate-800 my-1"></li>
+              <li>
+                <form action="/auth/logout" method="POST" class="d-inline">
+                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                  <button type="submit" class="dropdown-item text-danger d-flex align-items-center rounded-lg px-3 py-2 text-sm hover:bg-rose-500/10">
+                    <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        <% } else if (typeof currentAdmin !== 'undefined' && currentAdmin) { %>
+          <!-- Logged In Admin Menu -->
+          <div class="dropdown">
+            <button class="btn btn-danger btn-sm rounded-xl px-3 dropdown-toggle d-flex align-items-center gap-2 shadow-md shadow-rose-600/20" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-shield-check"></i>
+              <span class="font-medium"><%= currentAdmin.fullName.split(' ')[0] %></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-2xl rounded-xl border border-slate-800 bg-slate-950 p-2">
+              <li><h6 class="dropdown-header text-slate-400 text-xs truncate px-3 py-1">Ops Portal &bull; <%= currentAdmin.email %></h6></li>
+              <li><a class="dropdown-item rounded-lg px-3 py-2 text-sm text-slate-200 hover:bg-slate-800" href="/admin/dashboard"><i class="bi bi-speedometer2 me-2 text-rose-400"></i>Ops Dashboard</a></li>
+              <li><hr class="dropdown-divider border-slate-800 my-1"></li>
+              <li>
+                <form action="/auth/admin/logout" method="POST" class="d-inline">
+                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                  <button type="submit" class="dropdown-item text-danger d-flex align-items-center rounded-lg px-3 py-2 text-sm hover:bg-rose-500/10">
+                    <i class="bi bi-box-arrow-right me-2"></i>Admin Logout
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        <% } else { %>
+          <!-- Guest Navigation Buttons -->
+          <a href="/auth/login" class="btn btn-outline-light btn-sm rounded-xl px-3 text-slate-200 border-slate-700 hover:bg-slate-900 transition-all">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+          </a>
+          <a href="/auth/register" class="btn btn-warning btn-sm rounded-xl px-3 font-semibold shadow-md shadow-amber-500/20 hover:bg-amber-400 transition-all">
+            <i class="bi bi-person-plus me-1"></i> Register
+          </a>
+          <a href="/auth/admin/login" class="btn btn-outline-secondary btn-sm rounded-xl px-2.5 text-slate-400 hover:text-rose-400 hover:border-rose-500/50 transition-all" title="Operations Admin Portal">
+            <i class="bi bi-shield-lock"></i>
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>
