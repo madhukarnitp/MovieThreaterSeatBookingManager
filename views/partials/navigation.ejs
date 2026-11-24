@@ -1,108 +1,65 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-black border-bottom border-secondary border-opacity-25 py-2 sticky-top">
-  <div class="container">
-    <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') { %>
-      <!-- Brand Logo for Admin -->
+  <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') { %>
+    <!-- ADMIN TOP NAVIGATION BAR (CLEAN & NON-DUPLICATIVE) -->
+    <div class="container-fluid px-3 px-lg-4">
+      <!-- Admin Brand -->
       <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white text-decoration-none" href="/admin/dashboard">
-        <span class="badge bg-danger text-white p-2 rounded-3"><i class="bi bi-shield-lock-fill fs-5"></i></span>
+        <span class="badge bg-danger text-white p-2 rounded-3"><i class="bi bi-database-fill-gear fs-5"></i></span>
         <span class="fs-5">Cine<span class="text-danger">Seat</span></span>
-        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 small fw-normal ms-1">ADMIN</span>
+        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 small fw-semibold ms-1">ADMIN PORTAL</span>
       </a>
-    <% } else { %>
-      <!-- Brand Logo for Customer / Guest -->
+
+      <!-- Academic Project Subtitle (Desktop) -->
+      <div class="d-none d-md-flex align-items-center text-secondary small ms-3 ps-3 border-start border-secondary border-opacity-25">
+        <i class="bi bi-shield-check text-danger me-1.5"></i>
+        <span>DBMS Operations &bull; 3rd Semester Laboratory Project</span>
+      </div>
+
+      <!-- Right Side: Admin User Controls & Sign Out -->
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <div class="dropdown">
+          <button class="btn btn-danger btn-sm rounded-pill px-3 py-1.5 dropdown-toggle d-inline-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" data-bs-offset="0,8" aria-expanded="false">
+            <i class="bi bi-shield-lock-fill"></i>
+            <span><%= (currentUser.fullName || currentUser.full_name || 'Admin').split(' ')[0] %></span>
+            <span class="badge bg-black text-white ms-1" style="font-size: 0.65rem;">ADMIN</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg rounded-3 p-2" style="min-width: 220px;">
+            <li class="px-3 py-2 border-bottom border-secondary border-opacity-25 mb-1">
+              <div class="fw-bold text-white small"><%= currentUser.fullName || currentUser.full_name || 'System Administrator' %></div>
+              <div class="text-secondary small"><%= currentUser.email %></div>
+            </li>
+            <li><a class="dropdown-item rounded-2 py-1.5 small" href="/admin/dashboard"><i class="bi bi-speedometer2 text-danger me-2"></i> Dashboard</a></li>
+            <li><hr class="dropdown-divider border-secondary border-opacity-25 my-1"></li>
+            <li>
+              <form action="/auth/logout" method="POST" class="m-0">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                <button type="submit" class="dropdown-item text-danger rounded-2 py-1.5 small d-flex align-items-center gap-2 border-0 bg-transparent w-100 text-start">
+                  <i class="bi bi-box-arrow-right"></i> Sign Out
+                </button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  <% } else { %>
+    <!-- CUSTOMER & GUEST NAVIGATION BAR -->
+    <div class="container">
+      <!-- Brand Logo -->
       <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white text-decoration-none" href="/">
         <span class="badge bg-warning text-dark p-2 rounded-3"><i class="bi bi-film fs-5"></i></span>
         <span class="fs-5">Cine<span class="text-warning">Seat</span></span>
         <span class="badge bg-secondary bg-opacity-25 text-warning border border-warning border-opacity-25 small fw-normal ms-1">DBMS</span>
       </a>
-    <% } %>
 
-    <!-- Mobile Toggler -->
-    <button class="navbar-toggler border-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+      <!-- Mobile Toggler -->
+      <button class="navbar-toggler border-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-    <div class="collapse navbar-collapse" id="navbarMain">
-      <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') { %>
-        <!-- ADMIN EXCLUSIVE NAVIGATION LINKS -->
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ps-lg-3 gap-1">
-          <li class="nav-item">
-            <a class="nav-link px-3 py-1.5 rounded-pill <%= typeof activePage !== 'undefined' && activePage === 'admin-dashboard' ? 'active bg-danger text-white fw-semibold' : 'text-light' %>" href="/admin/dashboard">
-              <i class="bi bi-speedometer2 me-1"></i> Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link px-3 py-1.5 rounded-pill <%= typeof activePage !== 'undefined' && activePage === 'admin-movies' ? 'active bg-danger text-white fw-semibold' : 'text-light' %>" href="/admin/movies">
-              <i class="bi bi-film me-1"></i> Movies
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link px-3 py-1.5 rounded-pill <%= typeof activePage !== 'undefined' && activePage === 'admin-theaters' ? 'active bg-danger text-white fw-semibold' : 'text-light' %>" href="/admin/theaters">
-              <i class="bi bi-buildings me-1"></i> Theaters
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link px-3 py-1.5 rounded-pill <%= typeof activePage !== 'undefined' && activePage === 'admin-screens' ? 'active bg-danger text-white fw-semibold' : 'text-light' %>" href="/admin/screens">
-              <i class="bi bi-display me-1"></i> Screens
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link px-3 py-1.5 rounded-pill <%= typeof activePage !== 'undefined' && activePage === 'admin-seats' ? 'active bg-danger text-white fw-semibold' : 'text-light' %>" href="/admin/seats">
-              <i class="bi bi-grid-3x3 me-1"></i> Seats
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link px-3 py-1.5 rounded-pill <%= typeof activePage !== 'undefined' && activePage === 'admin-showtimes' ? 'active bg-danger text-white fw-semibold' : 'text-light' %>" href="/admin/showtimes">
-              <i class="bi bi-calendar-event me-1"></i> Showtimes
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link px-3 py-1.5 rounded-pill <%= typeof activePage !== 'undefined' && activePage === 'admin-bookings' ? 'active bg-danger text-white fw-semibold' : 'text-light' %>" href="/admin/bookings">
-              <i class="bi bi-ticket-perforated me-1"></i> Bookings
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link px-3 py-1.5 rounded-pill <%= typeof activePage !== 'undefined' && activePage === 'admin-payments' ? 'active bg-danger text-white fw-semibold' : 'text-light' %>" href="/admin/payments">
-              <i class="bi bi-credit-card me-1"></i> Payments
-            </a>
-          </li>
-        </ul>
-
-        <!-- Right Side: Admin User Controls (No Customer Search) -->
-        <div class="d-flex align-items-center gap-2 flex-nowrap">
-          <div class="dropdown">
-            <button class="btn btn-danger btn-sm rounded-pill px-3 py-1.5 dropdown-toggle d-inline-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" data-bs-offset="0,8" aria-expanded="false">
-              <i class="bi bi-shield-lock-fill"></i>
-              <span><%= (currentUser.fullName || currentUser.full_name || 'Admin').split(' ')[0] %></span>
-              <span class="badge bg-black text-white ms-1" style="font-size: 0.65rem;">ADMIN</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg rounded-3 p-2" style="min-width: 220px;">
-              <li class="px-3 py-2 border-bottom border-secondary border-opacity-25 mb-1">
-                <div class="fw-bold text-white small"><%= currentUser.fullName || currentUser.full_name || 'System Admin' %></div>
-                <div class="text-secondary small"><%= currentUser.email %></div>
-              </li>
-              <li><a class="dropdown-item rounded-2 py-1.5 small" href="/admin/dashboard"><i class="bi bi-speedometer2 text-danger me-2"></i> Dashboard</a></li>
-              <li><a class="dropdown-item rounded-2 py-1.5 small" href="/admin/movies"><i class="bi bi-film text-warning me-2"></i> Movies</a></li>
-              <li><a class="dropdown-item rounded-2 py-1.5 small" href="/admin/theaters"><i class="bi bi-buildings text-info me-2"></i> Theaters</a></li>
-              <li><a class="dropdown-item rounded-2 py-1.5 small" href="/admin/screens"><i class="bi bi-display text-primary me-2"></i> Screens</a></li>
-              <li><a class="dropdown-item rounded-2 py-1.5 small" href="/admin/seats"><i class="bi bi-grid-3x3 text-info me-2"></i> Seat Matrix</a></li>
-              <li><a class="dropdown-item rounded-2 py-1.5 small" href="/admin/showtimes"><i class="bi bi-calendar-event text-warning me-2"></i> Showtimes</a></li>
-              <li><a class="dropdown-item rounded-2 py-1.5 small" href="/admin/bookings"><i class="bi bi-ticket-perforated text-success me-2"></i> Bookings Audit</a></li>
-              <li><a class="dropdown-item rounded-2 py-1.5 small" href="/admin/payments"><i class="bi bi-credit-card text-success me-2"></i> Payments Audit</a></li>
-              <li><hr class="dropdown-divider border-secondary border-opacity-25 my-1"></li>
-              <li>
-                <form action="/auth/logout" method="POST" class="m-0">
-                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                  <button type="submit" class="dropdown-item text-danger rounded-2 py-1.5 small d-flex align-items-center gap-2 border-0 bg-transparent w-100 text-start">
-                    <i class="bi bi-box-arrow-right"></i> Sign Out
-                  </button>
-                </form>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-      <% } else { %>
-        <!-- CUSTOMER & GUEST NAVIGATION LINKS -->
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <!-- Main Customer Navigation Links -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0 ps-lg-3 gap-1">
           <li class="nav-item">
             <a class="nav-link px-3 py-1.5 rounded-pill <%= typeof activePage !== 'undefined' && activePage === 'home' ? 'active bg-warning text-dark fw-semibold' : 'text-light' %>" href="/">
@@ -177,7 +134,7 @@
             </a>
           <% } %>
         </div>
-      <% } %>
+      </div>
     </div>
-  </div>
+  <% } %>
 </nav>
