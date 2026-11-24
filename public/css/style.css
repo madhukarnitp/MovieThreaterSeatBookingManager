@@ -211,13 +211,15 @@ main {
   border-color: rgba(16, 185, 129, 0.4);
 }
 
+.cinema-seat.selected,
 .cinema-seat.seat-selected {
   background-color: #f59e0b !important;
   color: #000000 !important;
   border-color: #f59e0b !important;
-  font-weight: 700;
-  transform: scale(1.1);
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  font-weight: 700 !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.7) !important;
+  z-index: 10 !important;
 }
 
 .cinema-seat.seat-held {

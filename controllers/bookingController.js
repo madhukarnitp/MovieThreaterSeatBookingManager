@@ -17,6 +17,11 @@ function calculatePrice(seatType, basePrice) {
  */
 async function getSeatSelection(req, res, next) {
   try {
+    if (req.session && req.session.user && req.session.user.role === 'admin') {
+      req.flash('info', 'Administrator accounts manage cinema operations and do not place bookings.');
+      return res.redirect('/admin/dashboard');
+    }
+
     const showtimeId = req.params?.showtimeId || req.params?.id || req.query?.showtime_id;
 
     // 1. Fetch showtime with movie, screen, and theater info
@@ -178,6 +183,14 @@ async function createBooking(req, res, next) {
       }
       req.flash('error', 'Please log in to reserve seats.');
       return res.redirect('/login');
+    }
+
+    if (req.session.user.role === 'admin') {
+      if (isJsonReq) {
+        return res.status(403).json({ success: false, error: 'Administrators cannot book seats. Please use a customer account.' });
+      }
+      req.flash('error', 'Administrators cannot place customer bookings.');
+      return res.redirect('/admin/dashboard');
     }
 
     const userId = req.session.user.user_id;
@@ -539,6 +552,10 @@ async function getUserBookings(req, res, next) {
     if (!req.session || !req.session.user) {
       req.flash('error', 'Please log in to view your bookings.');
       return res.redirect('/login');
+    }
+
+    if (req.session.user.role === 'admin') {
+      return res.redirect('/admin/bookings');
     }
 
     const userId = req.session.user.user_id;

@@ -22,6 +22,10 @@ function enrichMovie(movie) {
  */
 async function getHome(req, res, next) {
   try {
+    if (req.session && req.session.user && req.session.user.role === 'admin') {
+      return res.redirect('/admin/dashboard');
+    }
+
     // 1. Fetch currently available movies
     const [movies] = await pool.query(
       'SELECT * FROM movies ORDER BY release_date DESC LIMIT 10'
@@ -104,6 +108,10 @@ async function getHome(req, res, next) {
  */
 async function getMovies(req, res, next) {
   try {
+    if (req.session && req.session.user && req.session.user.role === 'admin') {
+      return res.redirect('/admin/movies');
+    }
+
     const { search, genre } = req.query;
     let query = `
       SELECT m.*, COUNT(s.showtime_id) AS active_showtimes_count
@@ -179,6 +187,10 @@ async function getMovies(req, res, next) {
  */
 async function getMovieDetails(req, res, next) {
   try {
+    if (req.session && req.session.user && req.session.user.role === 'admin') {
+      return res.redirect('/admin/movies');
+    }
+
     const movieId = req.params.id;
 
     // Fetch movie
@@ -278,6 +290,10 @@ async function getMovieDetails(req, res, next) {
  */
 async function getShowtimes(req, res, next) {
   try {
+    if (req.session && req.session.user && req.session.user.role === 'admin') {
+      return res.redirect('/admin/showtimes');
+    }
+
     const { date, city, movie_id } = req.query;
     let query = `
       SELECT s.showtime_id, s.show_date, s.start_time, s.end_time, s.ticket_price, s.status,
@@ -408,6 +424,10 @@ async function getShowtimes(req, res, next) {
  */
 async function getTheaters(req, res, next) {
   try {
+    if (req.session && req.session.user && req.session.user.role === 'admin') {
+      return res.redirect('/admin/theaters');
+    }
+
     const { city } = req.query;
 
     let query = `

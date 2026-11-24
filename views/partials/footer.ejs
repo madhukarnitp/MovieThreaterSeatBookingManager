@@ -15,17 +15,35 @@
           </p>
         </div>
         <div class="col-md-6 text-center text-md-end">
-          <ul class="list-inline mb-1 small">
-            <li class="list-inline-item"><a href="/" class="text-secondary text-decoration-none">Home</a></li>
-            <li class="list-inline-item text-secondary">&bull;</li>
-            <li class="list-inline-item"><a href="/movies" class="text-secondary text-decoration-none">Movies</a></li>
-            <li class="list-inline-item text-secondary">&bull;</li>
-            <li class="list-inline-item"><a href="/theaters" class="text-secondary text-decoration-none">Theaters</a></li>
-            <li class="list-inline-item text-secondary">&bull;</li>
-            <li class="list-inline-item"><a href="/customer/bookings" class="text-secondary text-decoration-none">My Bookings</a></li>
-            <li class="list-inline-item text-secondary">&bull;</li>
-            <li class="list-inline-item"><a href="/admin/dashboard" class="text-danger text-decoration-none">Admin Portal</a></li>
-          </ul>
+          <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') { %>
+            <ul class="list-inline mb-1 small">
+              <li class="list-inline-item"><a href="/admin/dashboard" class="text-secondary text-decoration-none">Dashboard</a></li>
+              <li class="list-inline-item text-secondary">&bull;</li>
+              <li class="list-inline-item"><a href="/admin/movies" class="text-secondary text-decoration-none">Movies</a></li>
+              <li class="list-inline-item text-secondary">&bull;</li>
+              <li class="list-inline-item"><a href="/admin/theaters" class="text-secondary text-decoration-none">Theaters</a></li>
+              <li class="list-inline-item text-secondary">&bull;</li>
+              <li class="list-inline-item"><a href="/admin/screens" class="text-secondary text-decoration-none">Screens</a></li>
+              <li class="list-inline-item text-secondary">&bull;</li>
+              <li class="list-inline-item"><a href="/admin/seats" class="text-secondary text-decoration-none">Seats</a></li>
+              <li class="list-inline-item text-secondary">&bull;</li>
+              <li class="list-inline-item"><a href="/admin/showtimes" class="text-secondary text-decoration-none">Showtimes</a></li>
+              <li class="list-inline-item text-secondary">&bull;</li>
+              <li class="list-inline-item"><a href="/admin/bookings" class="text-danger text-decoration-none">Audit</a></li>
+            </ul>
+          <% } else { %>
+            <ul class="list-inline mb-1 small">
+              <li class="list-inline-item"><a href="/" class="text-secondary text-decoration-none">Home</a></li>
+              <li class="list-inline-item text-secondary">&bull;</li>
+              <li class="list-inline-item"><a href="/movies" class="text-secondary text-decoration-none">Movies</a></li>
+              <li class="list-inline-item text-secondary">&bull;</li>
+              <li class="list-inline-item"><a href="/theaters" class="text-secondary text-decoration-none">Theaters</a></li>
+              <li class="list-inline-item text-secondary">&bull;</li>
+              <li class="list-inline-item"><a href="/customer/bookings" class="text-secondary text-decoration-none">My Bookings</a></li>
+              <li class="list-inline-item text-secondary">&bull;</li>
+              <li class="list-inline-item"><a href="/admin/dashboard" class="text-danger text-decoration-none">Admin Portal</a></li>
+            </ul>
+          <% } %>
           <p class="text-secondary small mb-0" style="font-size: 0.75rem;">
             &copy; <%= typeof currentYear !== 'undefined' ? currentYear : new Date().getFullYear() %> CineSeat DBMS Project. All rights reserved.
           </p>

@@ -10,6 +10,10 @@ async function getPaymentPage(req, res, next) {
       return res.redirect('/login');
     }
 
+    if (req.session.user.role === 'admin') {
+      return res.redirect('/admin/payments');
+    }
+
     const bookingId = req.params.bookingId || req.params.id;
     const userId = req.session.user.user_id;
     const isAdmin = req.session.user.role === 'admin';
@@ -137,6 +141,14 @@ async function processPayment(req, res, next) {
 
     const userId = req.session.user.user_id;
     const isAdmin = req.session.user.role === 'admin';
+
+    if (isAdmin) {
+      if (isJsonReq) {
+        return res.status(403).json({ success: false, error: 'Administrators cannot execute customer payments.' });
+      }
+      return res.redirect('/admin/payments');
+    }
+
     const bookingId = req.params?.bookingId || req.params?.id || req.body?.booking_id;
     const simulationAction = req.body?.simulation_action || (req.body?.fail ? 'fail' : 'success');
 

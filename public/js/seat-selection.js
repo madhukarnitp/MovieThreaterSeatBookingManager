@@ -55,7 +55,7 @@
       } else {
         selectedSeats.forEach((seat, id) => {
           const pill = document.createElement('span');
-          pill.className = 'badge bg-primary text-white d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill small';
+          pill.className = 'badge bg-warning text-dark d-inline-flex align-items-center gap-1 px-2.5 py-1.5 rounded-pill small fw-bold shadow-sm';
           pill.innerHTML = `<span>${seat.seatCode}</span><i class="bi bi-x-circle cursor-pointer ms-1 remove-seat-btn" data-id="${id}"></i>`;
           
           pill.querySelector('.remove-seat-btn').addEventListener('click', (e) => {
@@ -82,7 +82,7 @@
     if (selectedSeats.has(seatId)) {
       // Deselect
       selectedSeats.delete(seatId);
-      seatBtn.classList.remove('selected');
+      seatBtn.classList.remove('selected', 'seat-selected');
     } else {
       // Select
       if (selectedSeats.size >= MAX_SEATS) {
@@ -94,7 +94,7 @@
       const category = seatBtn.dataset.category;
 
       selectedSeats.set(seatId, { seatCode, price, category });
-      seatBtn.classList.add('selected');
+      seatBtn.classList.add('selected', 'seat-selected');
     }
 
     updateSummary();
@@ -144,13 +144,14 @@
         // If seat is currently selected locally but became held or booked by someone else
         if (selectedSeats.has(seat.seatId) && (seat.status === 'booked' || (seat.status === 'held' && !seat.isMyHold))) {
           selectedSeats.delete(seat.seatId);
-          btn.classList.remove('selected');
+          btn.classList.remove('selected', 'seat-selected');
           conflictDetected = true;
         }
 
         // Update button visual status
         btn.dataset.status = seat.status;
-        btn.className = `cinema-seat seat-${seat.status} ${seat.isMyHold ? 'is-my-hold' : ''} ${selectedSeats.has(seat.seatId) ? 'selected' : ''}`;
+        const isSelected = selectedSeats.has(seat.seatId);
+        btn.className = `cinema-seat seat-${seat.status} ${seat.isMyHold ? 'is-my-hold' : ''} ${isSelected ? 'selected seat-selected' : ''}`;
 
         if (seat.status === 'available' || seat.isMyHold) {
           btn.removeAttribute('disabled');
