@@ -6,14 +6,23 @@ const { pool } = require('../config/db');
 function enrichMovie(movie) {
   if (!movie) return null;
   const genres = movie.genre ? movie.genre.split(',').map(g => g.trim()) : ['Cinema'];
+  const activeShowtimes = Number(movie.active_showtimes_count || 0);
+  const releaseDate = movie.release_date ? new Date(movie.release_date) : null;
+  const isUpcoming = releaseDate && releaseDate > new Date();
+  const computedStatus = movie.status || (activeShowtimes > 0 ? 'now_showing' : (isUpcoming ? 'upcoming' : 'ended'));
+
   return {
     ...movie,
-    formattedDuration: `${movie.duration_min} mins`,
+    genres: movie.genre || 'Cinema',
+    language: movie.language || 'Hindi',
+    formattedDuration: `${movie.duration_min || 120} mins`,
     genreList: genres,
+    formatList: movie.formatList || ['2D'],
     certification: movie.certification || 'UA',
+    status: computedStatus,
     poster_path: movie.poster_url || '/images/posters/fallback.svg',
     trailer_url: movie.trailer_url || null,
-    slug: movie.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+    slug: (movie.title || 'movie').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
   };
 }
 
@@ -112,44 +121,78 @@ async function getMovies(req, res, next) {
       return res.redirect('/admin/movies');
     }
 
-    const { search, genre } = req.query;
+    const search = typeof req.query.search === 'string' ? req.query.search.trim() : '';
+    const genre = (typeof req.query.genre === 'string' && req.query.genre.trim()) ? req.query.genre.trim() : 'all';
+    const language = (typeof req.query.language === 'string' && req.query.language.trim()) ? req.query.language.trim() : 'all';
+    const status = (typeof req.query.status === 'string' && req.query.status.trim()) ? req.query.status.trim() : 'all';
+    const sort = (typeof req.query.sort === 'string' && req.query.sort.trim()) ? req.query.sort.trim() : 'newest';
+
     let query = `
       SELECT m.*, COUNT(s.showtime_id) AS active_showtimes_count
       FROM movies m
-      LEFT JOIN showtimes s ON m.movie_id = s.movie_id AND s.status = 'SCHEDULED'
+      LEFT JOIN showtimes s ON m.movie_id = s.movie_id AND s.status = 'SCHEDULED' AND s.show_date >= CURDATE()
     `;
     const params = [];
     const conditions = [];
 
-    if (search && search.trim()) {
-      conditions.push('(m.title LIKE ? OR m.description LIKE ?)');
-      params.push(`%${search.trim()}%`, `%${search.trim()}%`);
+    if (search) {
+      conditions.push('(m.title LIKE ? OR m.description LIKE ? OR m.genre LIKE ? OR m.language LIKE ?)');
+      const searchPattern = `%${search}%`;
+      params.push(searchPattern, searchPattern, searchPattern, searchPattern);
     }
 
-    if (genre && genre.trim()) {
+    if (genre.toLowerCase() !== 'all') {
       conditions.push('m.genre LIKE ?');
-      params.push(`%${genre.trim()}%`);
+      params.push(`%${genre}%`);
+    }
+
+    if (language.toLowerCase() !== 'all') {
+      conditions.push('LOWER(m.language) = LOWER(?)');
+      params.push(language);
+    }
+
+    if (status === 'upcoming') {
+      conditions.push('m.release_date > CURDATE()');
     }
 
     if (conditions.length > 0) {
       query += ' WHERE ' + conditions.join(' AND ');
     }
 
-    query += ' GROUP BY m.movie_id ORDER BY m.release_date DESC';
+    query += ' GROUP BY m.movie_id';
+
+    if (status === 'now_showing') {
+      query += ' HAVING active_showtimes_count > 0';
+    } else if (status === 'ended') {
+      query += ' HAVING active_showtimes_count = 0 AND m.release_date <= CURDATE()';
+    }
+
+    const sortMap = {
+      newest: 'm.release_date DESC',
+      title_asc: 'm.title ASC',
+      title_desc: 'm.title DESC',
+      duration_desc: 'm.duration_min DESC'
+    };
+    query += ` ORDER BY ${sortMap[sort] || sortMap.newest}`;
 
     const [rows] = await pool.query(query, params);
     const movies = rows.map(enrichMovie);
 
-    // Get all unique genres for filter buttons
-    const [allGenresRows] = await pool.query('SELECT genre FROM movies');
+    // Get all unique genres and languages for filter controls
+    const [allMetaRows] = await pool.query('SELECT genre, language FROM movies');
     const genreSet = new Set();
-    allGenresRows.forEach(r => {
+    const languageSet = new Set();
+    allMetaRows.forEach(r => {
       if (r.genre) {
         r.genre.split(',').forEach(g => genreSet.add(g.trim()));
+      }
+      if (r.language) {
+        languageSet.add(r.language.trim());
       }
     });
 
     const genresList = Array.from(genreSet).sort();
+    const languagesList = Array.from(languageSet).sort();
 
     res.render('pages/movies/index', {
       title: 'Movies Catalog - CineSeat Manager',
@@ -157,15 +200,15 @@ async function getMovies(req, res, next) {
       movies,
       totalCount: movies.length,
       filters: {
-        search: search || '',
-        genre: genre || 'all',
-        language: req.query.language || 'all',
-        status: req.query.status || 'all',
-        sort: req.query.sort || 'newest'
+        search,
+        genre,
+        language,
+        status,
+        sort
       },
       filterOptions: {
         genres: genresList.map(g => ({ name: g, slug: g })),
-        languages: ['English', 'Hindi']
+        languages: languagesList
       },
       pagination: {
         page: 1,
@@ -174,8 +217,8 @@ async function getMovies(req, res, next) {
         totalPages: 1
       },
       genres: genresList,
-      selectedGenre: genre || '',
-      searchQuery: search || ''
+      selectedGenre: genre === 'all' ? '' : genre,
+      searchQuery: search
     });
   } catch (error) {
     next(error);
@@ -312,12 +355,7 @@ async function getShowtimes(req, res, next) {
     `;
     const params = [];
 
-    if (date) {
-      query += ' AND s.show_date = ?';
-      params.push(date);
-    } else {
-      query += ' AND s.show_date >= CURDATE()';
-    }
+    query += ' AND s.show_date >= CURDATE()';
 
     if (city) {
       query += ' AND t.city = ?';

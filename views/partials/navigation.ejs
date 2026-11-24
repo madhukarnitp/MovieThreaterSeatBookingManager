@@ -4,15 +4,15 @@
     <div class="container-fluid px-3 px-lg-4">
       <!-- Admin Brand -->
       <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white text-decoration-none" href="/admin/dashboard">
-        <span class="badge bg-danger text-white p-2 rounded-3"><i class="bi bi-database-fill-gear fs-5"></i></span>
-        <span class="fs-5">Cine<span class="text-danger">Seat</span></span>
-        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 small fw-semibold ms-1">ADMIN PORTAL</span>
+        <span class="badge bg-warning text-dark p-2 rounded-3"><i class="bi bi-film fs-5"></i></span>
+        <span class="fs-5">Cine<span class="text-warning">Seat</span></span>
+        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 small fw-semibold ms-1">ADMIN</span>
       </a>
 
-      <!-- Academic Project Subtitle (Desktop) -->
+      <!-- Operations Subtitle (Desktop) -->
       <div class="d-none d-md-flex align-items-center text-secondary small ms-3 ps-3 border-start border-secondary border-opacity-25">
-        <i class="bi bi-shield-check text-danger me-1.5"></i>
-        <span>DBMS Operations &bull; 3rd Semester Laboratory Project</span>
+        <i class="bi bi-shield-check text-warning me-1.5"></i>
+        <span>Cinema Operations &amp; Management</span>
       </div>
 
       <!-- Right Side: Admin User Controls & Sign Out -->
@@ -50,7 +50,6 @@
       <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white text-decoration-none" href="/">
         <span class="badge bg-warning text-dark p-2 rounded-3"><i class="bi bi-film fs-5"></i></span>
         <span class="fs-5">Cine<span class="text-warning">Seat</span></span>
-        <span class="badge bg-secondary bg-opacity-25 text-warning border border-warning border-opacity-25 small fw-normal ms-1">DBMS</span>
       </a>
 
       <!-- Mobile Toggler -->
@@ -93,9 +92,22 @@
 
         <!-- Right Side: Search & Customer / Guest Controls -->
         <div class="d-flex align-items-center gap-2 flex-nowrap">
-          <a href="/movies" class="btn btn-outline-secondary btn-sm rounded-pill px-3 text-light">
-            <i class="bi bi-search me-1 text-warning"></i> Search
-          </a>
+          <form action="/movies" method="GET" class="d-flex align-items-center m-0" role="search">
+            <div class="input-group input-group-sm">
+              <input
+                type="search"
+                name="search"
+                class="form-control bg-dark text-light border-secondary border-opacity-50 rounded-start-pill ps-3"
+                placeholder="Search movies..."
+                aria-label="Search movies"
+                value="<%= typeof searchQuery !== 'undefined' ? searchQuery : (typeof filters !== 'undefined' && filters.search ? filters.search : '') %>"
+                style="max-width: 190px;"
+              >
+              <button class="btn btn-outline-warning border-secondary border-opacity-50 rounded-end-pill px-3" type="submit" aria-label="Search">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </form>
 
           <% if (typeof currentUser !== 'undefined' && currentUser) { %>
             <!-- Customer Dropdown -->

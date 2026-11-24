@@ -51,7 +51,7 @@
           <% showtimesData.availableDates.forEach(function(dateStr) { %>
             <% const dateObj = new Date(dateStr + 'T00:00:00'); %>
             <a 
-              href="/movies/<%= movie ? movie.movie_id : '' %>/showtimes?date=<%= dateStr %>" 
+              href="<%= movie ? '/movies/' + movie.movie_id + '/showtimes' : '/movies/showtimes' %>?date=<%= dateStr %>" 
               class="date-pill <%= selectedDate === dateStr ? 'active' : '' %>"
             >
               <span class="small text-uppercase"><%= dateObj.toLocaleDateString('en-US', { weekday: 'short' }) %></span>
