@@ -1,181 +1,187 @@
-const AuthService = require('../services/authService');
+const bcrypt = require('bcryptjs');
+const { pool } = require('../config/db');
 
 /**
- * Controller handling registration, customer login, admin login, and sessions
+ * Display User Login Page
  */
-class AuthController {
-  /**
-   * Render customer registration form
-   */
-  static showRegister(req, res) {
-    res.render('auth/register', {
-      title: 'Create Your Account - CineSeat',
-      activePage: 'register',
-      errors: [],
-      oldInput: {},
-      alert: null
-    });
-  }
-
-  /**
-   * Process customer registration
-   */
-  static async register(req, res, next) {
-    try {
-      const { full_name, email, phone, password } = req.body;
-
-      await AuthService.registerCustomer({
-        fullName: full_name,
-        email,
-        phone,
-        password
-      });
-
-      req.flash('success', 'Registration successful! You can now log in to your account.');
-      return res.redirect('/auth/login');
-    } catch (error) {
-      if (error.status === 409) {
-        return res.status(409).render('auth/register', {
-          title: 'Create Your Account - CineSeat',
-          activePage: 'register',
-          errors: [error.message],
-          oldInput: req.body,
-          alert: {
-            type: 'warning',
-            message: error.message
-          }
-        });
-      }
-      next(error);
+async function getLogin(req, res) {
+  if (req.session && req.session.user) {
+    if (req.session.user.role === 'admin') {
+      return res.redirect('/admin/dashboard');
     }
+    return res.redirect('/');
   }
 
-  /**
-   * Render customer login form
-   */
-  static showLogin(req, res) {
-    res.render('auth/login', {
-      title: 'Customer Login - CineSeat',
-      activePage: 'login',
-      errors: [],
-      oldInput: {},
-      alert: null
-    });
-  }
+  res.render('auth/login', {
+    title: 'Login - CineSeat Manager',
+    activePage: 'login',
+    returnTo: req.query.returnTo || ''
+  });
+}
 
-  /**
-   * Process customer login with session regeneration
-   */
-  static async login(req, res, next) {
-    try {
-      const { email, password } = req.body;
-      const user = await AuthService.authenticateCustomer(email, password);
+/**
+ * Process User Login (Customer and Admin)
+ */
+async function postLogin(req, res, next) {
+  try {
+    const { email, password, returnTo } = req.body;
 
-      // Regenerate session ID to prevent session fixation attacks
-      req.session.regenerate((err) => {
-        if (err) return next(err);
-
-        req.session.user = user;
-        req.session.customer = {
-          customer_id: user.id,
-          id: user.id,
-          full_name: user.fullName,
-          email: user.email,
-          phone: user.phone
-        };
-        const returnUrl = req.session.returnTo || '/customer/dashboard';
-        delete req.session.returnTo;
-
-        req.flash('success', `Welcome back, ${user.fullName}!`);
-        req.session.save((saveErr) => {
-          if (saveErr) return next(saveErr);
-          return res.redirect(returnUrl);
-        });
-      });
-    } catch (error) {
-      const statusCode = error.status || 401;
-      return res.status(statusCode).render('auth/login', {
-        title: 'Customer Login - CineSeat',
-        activePage: 'login',
-        errors: [error.message],
-        oldInput: { email: req.body.email },
-        alert: {
-          type: statusCode === 403 ? 'warning' : 'danger',
-          message: error.message
-        }
-      });
+    if (!email || !password) {
+      req.flash('error', 'Please provide both email and password.');
+      return res.redirect(`/login${returnTo ? '?returnTo=' + encodeURIComponent(returnTo) : ''}`);
     }
-  }
 
-  /**
-   * Customer logout: destroys session and clears cookie
-   */
-  static logout(req, res, next) {
-    req.session.user = null;
-    req.session.destroy((err) => {
-      if (err) return next(err);
-      res.clearCookie('cineseat_sid');
-      return res.redirect('/auth/login?logged_out=1');
-    });
-  }
+    // Direct Parameterized SQL Query
+    const [rows] = await pool.query(
+      'SELECT user_id, full_name, email, password_hash, phone, role FROM users WHERE email = ? LIMIT 1',
+      [email.trim().toLowerCase()]
+    );
 
-  /**
-   * Render administrator login form
-   */
-  static showAdminLogin(req, res) {
-    res.render('auth/admin-login', {
-      title: 'Administrator Portal - CineSeat',
-      activePage: 'admin-login',
-      errors: [],
-      oldInput: {},
-      alert: null
-    });
-  }
-
-  /**
-   * Process administrator login
-   */
-  static async adminLogin(req, res, next) {
-    try {
-      const { email, password } = req.body;
-      const admin = await AuthService.authenticateAdmin(email, password);
-
-      req.session.regenerate((err) => {
-        if (err) return next(err);
-
-        req.session.admin = admin;
-        req.flash('success', `Welcome to Cinema Operations, ${admin.fullName}!`);
-        req.session.save((saveErr) => {
-          if (saveErr) return next(saveErr);
-          return res.redirect('/admin/dashboard');
-        });
-      });
-    } catch (error) {
-      const statusCode = error.status || 401;
-      return res.status(statusCode).render('auth/admin-login', {
-        title: 'Administrator Portal - CineSeat',
-        activePage: 'admin-login',
-        errors: [error.message],
-        oldInput: { email: req.body.email },
-        alert: {
-          type: 'danger',
-          message: error.message
-        }
-      });
+    if (rows.length === 0) {
+      req.flash('error', 'Invalid email address or password.');
+      return res.redirect(`/login${returnTo ? '?returnTo=' + encodeURIComponent(returnTo) : ''}`);
     }
-  }
 
-  /**
-   * Admin logout
-   */
-  static adminLogout(req, res, next) {
-    req.session.admin = null;
-    req.session.destroy((err) => {
-      if (err) return next(err);
-      res.clearCookie('cineseat_sid');
-      return res.redirect('/auth/admin/login?logged_out=1');
-    });
+    const user = rows[0];
+    const passwordMatch = bcrypt.compareSync(password, user.password_hash);
+
+    if (!passwordMatch) {
+      req.flash('error', 'Invalid email address or password.');
+      return res.redirect(`/login${returnTo ? '?returnTo=' + encodeURIComponent(returnTo) : ''}`);
+    }
+
+    // Initialize session
+    req.session.user = {
+      id: user.user_id,
+      user_id: user.user_id,
+      fullName: user.full_name,
+      full_name: user.full_name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role
+    };
+
+    req.flash('success', `Welcome back, ${user.full_name}!`);
+
+    if (user.role === 'admin') {
+      return res.redirect('/admin/dashboard');
+    }
+
+    const redirectUrl = returnTo && returnTo.startsWith('/') ? returnTo : '/';
+    return res.redirect(redirectUrl);
+  } catch (error) {
+    next(error);
   }
 }
 
-module.exports = AuthController;
+/**
+ * Display Registration Page
+ */
+async function getRegister(req, res) {
+  if (req.session && req.session.user) {
+    return res.redirect('/');
+  }
+
+  res.render('auth/register', {
+    title: 'Register - CineSeat Manager',
+    activePage: 'register'
+  });
+}
+
+/**
+ * Process Customer Registration
+ */
+async function postRegister(req, res, next) {
+  try {
+    const { full_name, email, phone, password, confirm_password } = req.body;
+
+    // 1. Validate full name
+    if (!full_name || full_name.trim().length < 2) {
+      req.flash('error', 'Full name must be at least 2 characters long.');
+      return res.redirect('/register');
+    }
+
+    // 2. Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email.trim())) {
+      req.flash('error', 'Please enter a valid email address.');
+      return res.redirect('/register');
+    }
+
+    // 3. Validate phone format (if provided)
+    if (phone && phone.trim().length > 0 && !/^[0-9+\-\s()]{7,20}$/.test(phone.trim())) {
+      req.flash('error', 'Please enter a valid phone number (digits and optional plus/dash).');
+      return res.redirect('/register');
+    }
+
+    // 4. Validate password length
+    if (!password || password.length < 6) {
+      req.flash('error', 'Password must be at least 6 characters long.');
+      return res.redirect('/register');
+    }
+
+    // 5. Confirm password match
+    if (confirm_password && password !== confirm_password) {
+      req.flash('error', 'Passwords do not match.');
+      return res.redirect('/register');
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 6. Prevent duplicate email registrations (parameterized query)
+    const [existing] = await pool.query(
+      'SELECT user_id FROM users WHERE email = ? LIMIT 1',
+      [cleanEmail]
+    );
+
+    if (existing.length > 0) {
+      req.flash('error', 'An account with this email address already exists. Please sign in.');
+      return res.redirect('/login');
+    }
+
+    // 7. Hash password using bcrypt
+    const passwordHash = bcrypt.hashSync(password, 10);
+
+    // 8. Insert new customer record
+    const [result] = await pool.query(
+      'INSERT INTO users (full_name, email, password_hash, phone, role) VALUES (?, ?, ?, ?, ?)',
+      [full_name.trim(), cleanEmail, passwordHash, phone && phone.trim().length > 0 ? phone.trim() : null, 'customer']
+    );
+
+    // 9. Auto-login newly registered user
+    req.session.user = {
+      id: result.insertId,
+      user_id: result.insertId,
+      fullName: full_name.trim(),
+      full_name: full_name.trim(),
+      email: cleanEmail,
+      phone: phone && phone.trim().length > 0 ? phone.trim() : null,
+      role: 'customer'
+    };
+
+    req.flash('success', `Registration successful! Welcome to CineSeat, ${full_name.trim()}.`);
+    return res.redirect('/');
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Log Out User
+ */
+function logout(req, res) {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Session destroy error during logout:', err);
+    }
+    res.redirect('/');
+  });
+}
+
+module.exports = {
+  getLogin,
+  postLogin,
+  getRegister,
+  postRegister,
+  logout
+};

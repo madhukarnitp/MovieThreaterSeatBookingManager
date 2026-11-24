@@ -1,26 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const BookingController = require('../controllers/bookingController');
-const PaymentController = require('../controllers/paymentController');
-const { requireCustomer } = require('../middleware/auth');
+const bookingController = require('../controllers/bookingController');
+const { isAuthenticated } = require('../middlewares/auth');
 
-// Seat selection page (Publicly accessible to browse, but action requires login)
-router.get('/showtimes/:id/seats', BookingController.renderSeatSelection);
-router.get('/bookings/select-seats', BookingController.renderSeatSelection);
+// Seat Selection Views
+router.get('/showtimes/:showtimeId/seats', bookingController.getSeatSelection);
+router.get('/booking/select-seats/:showtimeId', bookingController.getSeatSelection);
 
-// AJAX live availability endpoint
-router.get('/api/showtimes/:id/seat-availability', BookingController.getSeatAvailabilityApi);
+// Live Availability JSON API
+router.get('/api/showtimes/:showtimeId/seat-availability', bookingController.getSeatAvailabilityApi);
 
-// Customer-protected hold & payment routes
-router.post('/bookings/hold', requireCustomer, BookingController.holdSeats);
-router.get('/bookings/:id/payment', requireCustomer, BookingController.renderPayment);
-router.post('/bookings/:id/cancel', requireCustomer, BookingController.cancelHold);
+// Reserve / Hold Seats (ACID Transaction)
+router.post('/bookings/hold', isAuthenticated, bookingController.createBooking);
+router.post('/booking/create', isAuthenticated, bookingController.createBooking);
 
-// Simulated Payment execution
-router.post('/bookings/:id/pay', requireCustomer, PaymentController.processPayment);
+// Confirmation & Ticket Print Pages
+router.get('/bookings/:bookingId/confirmation', bookingController.getConfirmation);
+router.get('/booking/confirmation/:bookingId', bookingController.getConfirmation);
+router.get('/bookings/:bookingId/tickets', bookingController.getConfirmation);
+router.get('/booking/tickets/:bookingId', bookingController.getConfirmation);
 
-// Ticket Views
-router.get('/bookings/:id/tickets', requireCustomer, PaymentController.viewBookingTickets);
-router.get('/tickets/:identifier', requireCustomer, PaymentController.viewSingleTicket);
+// Customer Bookings
+router.get('/customer/dashboard', isAuthenticated, bookingController.getUserBookings);
+router.get('/customer/bookings', isAuthenticated, bookingController.getUserBookings);
+router.get('/my-bookings', isAuthenticated, bookingController.getUserBookings);
+
+// Cancel Booking
+router.post('/bookings/:bookingId/cancel', isAuthenticated, bookingController.cancelBooking);
+router.post('/booking/cancel/:bookingId', isAuthenticated, bookingController.cancelBooking);
 
 module.exports = router;

@@ -38,8 +38,8 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-light rounded-pill px-4" href="/customer/tickets">
-        <i class="bi bi-qr-code-scan me-1"></i> My Tickets
+      <a class="nav-link text-light rounded-pill px-4" href="/movies">
+        <i class="bi bi-camera-reels me-1"></i> Browse Movies
       </a>
     </li>
   </ul>
@@ -91,15 +91,15 @@
                   <i class="bi bi-geo-alt text-warning me-1"></i><strong><%= b.theater_name %></strong> &bull; <%= b.screen_name %> (<%= b.city %>)
                 </p>
                 <p class="text-warning small mb-2 fw-semibold">
-                  <i class="bi bi-clock me-1"></i><%= new Date(b.start_time).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                  <i class="bi bi-clock me-1"></i><%= b.formatted_date || (b.show_date ? formatDate(b.show_date) : 'N/A') %> at <%= b.formatted_time || (b.start_time ? formatTime(b.start_time) : 'N/A') %>
                 </p>
 
                 <div class="d-flex flex-wrap gap-3 small text-secondary">
                   <span>Ref: <strong class="text-light font-monospace"><%= b.booking_ref %></strong></span>
                   <span>Seats: <strong class="text-warning font-monospace"><%= b.seat_codes %></strong></span>
-                  <span>Total Amount: <strong class="text-white">₹<%= Number(b.total_amount).toFixed(2) %></strong></span>
+                  <span>Total Amount: <strong class="text-white">₹<%= Number(b.total_amount || 0).toFixed(2) %></strong></span>
                   <% if (b.refund_status) { %>
-                    <span>Refund: <strong class="text-info font-monospace">₹<%= Number(b.refund_amount).toFixed(2) %> (<%= b.refund_status %>)</strong></span>
+                    <span>Refund: <strong class="text-info font-monospace">₹<%= Number(b.refund_amount || 0).toFixed(2) %> (<%= b.refund_status %>)</strong></span>
                   <% } %>
                 </div>
               </div>
@@ -112,7 +112,7 @@
                   </a>
 
                   <% if (b.is_cancellable) { %>
-                    <form action="/customer/bookings/<%= b.booking_id %>/cancel" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this booking? Eligible funds will be processed for refund.');">
+                    <form action="/bookings/<%= b.booking_id %>/cancel" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
                         <i class="bi bi-x-circle me-1"></i> Cancel

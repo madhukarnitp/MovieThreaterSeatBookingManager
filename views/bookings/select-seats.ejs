@@ -34,7 +34,7 @@
           <i class="bi bi-geo-alt text-warning me-1"></i><strong><%= showtime.theater_name %></strong> (<%= showtime.city %>) &bull; <span class="text-light"><%= showtime.screen_name %></span>
         </p>
         <p class="text-warning small mb-0 fw-semibold">
-          <i class="bi bi-clock me-1"></i><%= new Date(showtime.start_time).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+          <i class="bi bi-clock me-1"></i><%= showtime.formatted_datetime || (showtime.show_date + ' ' + showtime.start_time) %>
         </p>
       </div>
       <div class="col-md-auto text-md-end">
@@ -174,7 +174,7 @@
         </div>
 
         <!-- Reserve Form -->
-        <% if (currentUser && currentCustomer) { %>
+        <% if (currentUser) { %>
           <form action="/bookings/hold" method="POST" id="reserve-form">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <input type="hidden" name="showtime_id" value="<%= showtime.showtime_id %>">

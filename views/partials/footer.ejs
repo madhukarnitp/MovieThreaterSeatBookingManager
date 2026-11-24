@@ -6,26 +6,30 @@
       <div class="row align-items-center g-3">
         <div class="col-md-6 text-center text-md-start">
           <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
-            <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 shadow-sm">
               <i class="bi bi-film"></i>
             </div>
-            <span class="font-bold tracking-wide text-white text-base"><%= typeof appName !== 'undefined' ? appName : 'CineSeat' %></span>
+            <span class="font-bold tracking-wide text-white text-base">Cine<span class="text-amber-400">Seat</span></span>
           </div>
-          <p class="text-slate-400 text-xs mb-0 mt-1.5">
-            Book your favorite movies and reserve your preferred seats with ease.
+          <p class="text-slate-400 text-xs mb-0 mt-2">
+            Movie Theater Seat Booking &amp; Showtime Manager
           </p>
         </div>
         <div class="col-md-6 text-center text-md-end">
-          <ul class="list-inline mb-1.5 text-xs">
+          <ul class="list-inline mb-2 text-xs">
             <li class="list-inline-item"><a href="/" class="text-slate-400 hover:text-amber-400 text-decoration-none transition-colors">Home</a></li>
-            <li class="list-inline-item text-slate-400">&bull;</li>
+            <li class="list-inline-item text-slate-600">&bull;</li>
             <li class="list-inline-item"><a href="/movies" class="text-slate-400 hover:text-amber-400 text-decoration-none transition-colors">Movies</a></li>
-            <li class="list-inline-item text-slate-400">&bull;</li>
-            <li class="list-inline-item"><a href="/customer/bookings" class="text-slate-400 hover:text-amber-400 text-decoration-none transition-colors">My Bookings</a></li>
-            <li class="list-inline-item text-slate-400">&bull;</li>
-            <li class="list-inline-item"><a href="/customer/tickets" class="text-slate-400 hover:text-amber-400 text-decoration-none transition-colors">Tickets</a></li>
+            <li class="list-inline-item text-slate-600">&bull;</li>
+            <li class="list-inline-item"><a href="/theaters" class="text-slate-400 hover:text-amber-400 text-decoration-none transition-colors">Theaters</a></li>
+            <li class="list-inline-item text-slate-600">&bull;</li>
+            <li class="list-inline-item"><a href="/customer/dashboard" class="text-slate-400 hover:text-amber-400 text-decoration-none transition-colors">My Bookings</a></li>
+            <li class="list-inline-item text-slate-600">&bull;</li>
+            <li class="list-inline-item"><a href="/admin/dashboard" class="text-slate-400 hover:text-rose-400 text-decoration-none transition-colors">Admin Portal</a></li>
           </ul>
-          <p class="text-slate-400 text-xs mb-0">&copy; <%= typeof currentYear !== 'undefined' ? currentYear : new Date().getFullYear() %> CineSeat. All rights reserved.</p>
+          <p class="text-slate-500 text-[11px] mb-0">
+            &copy; <%= typeof currentYear !== 'undefined' ? currentYear : new Date().getFullYear() %> @cineSeat. All rights reserved.
+          </p>
         </div>
       </div>
     </div>

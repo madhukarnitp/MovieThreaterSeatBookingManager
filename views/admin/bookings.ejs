@@ -44,25 +44,26 @@
                       <div class="small text-secondary"><%= b.theater_name %> &bull; <%= b.screen_name %></div>
                     </td>
                     <td class="small">
-                      <div><%= new Date(b.start_time).toLocaleDateString() %></div>
-                      <span class="text-warning"><%= new Date(b.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></span>
+                      <div><%= b.formatted_date || (b.show_date ? formatDate(b.show_date) : 'N/A') %></div>
+                      <span class="text-warning"><%= b.formatted_time || (b.start_time ? formatTime(b.start_time) : 'N/A') %></span>
                     </td>
-                    <td><span class="badge text-bg-secondary"><%= b.seats_count %> seat(s)</span></td>
-                    <td class="fw-bold text-light">₹<%= Number(b.total_amount).toFixed(2) %></td>
+                    <td><span class="badge text-bg-secondary"><%= b.seats_count || 1 %> seat(s)</span></td>
+                    <td class="fw-bold text-light">₹<%= Number(b.total_amount || 0).toFixed(2) %></td>
                     <td>
-                      <% if (b.payment_status === 'success') { %>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle"><%= b.payment_method %> (Paid)</span>
+                      <% if (String(b.payment_status || '').toUpperCase() === 'SUCCESS') { %>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle"><%= b.payment_method || 'ONLINE' %> (Paid)</span>
                       <% } else { %>
                         <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle"><%= b.payment_method || 'Pending' %></span>
                       <% } %>
                     </td>
                     <td>
-                      <% if (b.status === 'confirmed') { %>
+                      <% const bStat = String(b.status || b.booking_status || '').toLowerCase(); %>
+                      <% if (bStat === 'confirmed') { %>
                         <span class="badge bg-success-subtle text-success border border-success-subtle">Confirmed</span>
-                      <% } else if (b.status === 'cancelled') { %>
+                      <% } else if (bStat === 'cancelled') { %>
                         <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Cancelled</span>
                       <% } else { %>
-                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle"><%= b.status %></span>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle"><%= bStat.toUpperCase() %></span>
                       <% } %>
                     </td>
                     <td class="text-end">

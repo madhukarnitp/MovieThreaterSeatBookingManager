@@ -24,6 +24,59 @@ body {
   background-attachment: fixed;
 }
 
+/* Global layout spacing and margins */
+main {
+  min-height: calc(100vh - 180px);
+  padding-bottom: 2.5rem;
+}
+
+.container {
+  padding-left: clamp(1rem, 2.5vw, 2rem);
+  padding-right: clamp(1rem, 2.5vw, 2rem);
+}
+
+/* Fix Tailwind CSS .collapse collision with Bootstrap .navbar-collapse and guarantee header visibility */
+.site-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1050 !important;
+  background-color: #030712 !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+.site-header nav,
+nav.navbar {
+  position: relative;
+  z-index: 1050 !important;
+  background-color: #030712 !important;
+  visibility: visible !important;
+}
+
+.navbar-collapse,
+.navbar-collapse.collapse,
+.navbar-expand-lg .navbar-collapse {
+  visibility: visible !important;
+}
+
+@media (max-width: 991.98px) {
+  .navbar-collapse.collapse:not(.show) {
+    display: none !important;
+  }
+  .navbar-collapse.collapse.show {
+    display: block !important;
+    visibility: visible !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .navbar-collapse,
+  .navbar-expand-lg .navbar-collapse {
+    display: flex !important;
+    visibility: visible !important;
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

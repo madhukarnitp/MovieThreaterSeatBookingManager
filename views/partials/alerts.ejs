@@ -4,13 +4,10 @@
   bold contrast typography, and short concise messaging (clamped to at most 5 words).
 %>
 <%
-  // Helper function to format/truncate message to at most 5 words
-  function clampWords(str, maxWords = 5) {
+  // Helper function to format message safely with clean text
+  function formatAlertText(str) {
     if (!str || typeof str !== 'string') return '';
-    const cleanStr = str.replace(/<[^>]*>?/gm, '').trim();
-    const words = cleanStr.split(/\s+/);
-    if (words.length <= maxWords) return cleanStr;
-    return words.slice(0, maxWords).join(' ') + '...';
+    return str.replace(/<[^>]*>?/gm, '').trim();
   }
 %>
 <style>
@@ -23,26 +20,26 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     pointer-events: none;
     max-width: 90vw;
   }
 
   .square-toast {
     pointer-events: auto;
-    min-width: 180px;
-    max-width: 280px;
+    min-width: 220px;
+    max-width: 480px;
     width: fit-content;
-    padding: 8px 12px;
-    border-radius: 8px; /* Crisp square with subtle 8px bevel */
-    box-shadow: 0 10px 20px -4px rgba(0, 0, 0, 0.4), 0 3px 6px -1px rgba(0, 0, 0, 0.2);
+    padding: 10px 16px;
+    border-radius: 10px;
+    box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.5), 0 4px 8px -1px rgba(0, 0, 0, 0.3);
     color: #ffffff;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 500;
     letter-spacing: -0.01em;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     animation: squareToastIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     transition: opacity 0.25s ease, transform 0.25s ease;
   }
@@ -83,12 +80,10 @@
 
   .square-toast .toast-text {
     flex: 1;
-    line-height: 1.25;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
+    line-height: 1.35;
+    word-break: break-word;
     text-align: left;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
   }
 
   .square-toast .toast-close {
@@ -148,7 +143,7 @@
           <i class="bi bi-info-circle-fill"></i>
         <% } %>
       </div>
-      <div class="toast-text"><%= clampWords(alert.message, 5) %></div>
+      <div class="toast-text"><%= formatAlertText(alert.message) %></div>
       <button type="button" class="toast-close" onclick="dismissSquareToast(this)" aria-label="Close">
         <i class="bi bi-x"></i>
       </button>
@@ -160,7 +155,7 @@
     <% success_msg.forEach(function(msg) { %>
       <div class="square-toast toast-success" role="alert" title="<%= msg %>">
         <div class="toast-icon-box"><i class="bi bi-check-lg"></i></div>
-        <div class="toast-text"><%= clampWords(msg, 5) %></div>
+        <div class="toast-text"><%= formatAlertText(msg) %></div>
         <button type="button" class="toast-close" onclick="dismissSquareToast(this)" aria-label="Close">
           <i class="bi bi-x"></i>
         </button>
@@ -173,7 +168,7 @@
     <% error_msg.forEach(function(msg) { %>
       <div class="square-toast toast-danger" role="alert" title="<%= msg %>">
         <div class="toast-icon-box"><i class="bi bi-x-circle-fill"></i></div>
-        <div class="toast-text"><%= clampWords(msg, 5) %></div>
+        <div class="toast-text"><%= formatAlertText(msg) %></div>
         <button type="button" class="toast-close" onclick="dismissSquareToast(this)" aria-label="Close">
           <i class="bi bi-x"></i>
         </button>
@@ -186,7 +181,7 @@
     <% warning_msg.forEach(function(msg) { %>
       <div class="square-toast toast-warning" role="alert" title="<%= msg %>">
         <div class="toast-icon-box"><i class="bi bi-exclamation-triangle-fill"></i></div>
-        <div class="toast-text"><%= clampWords(msg, 5) %></div>
+        <div class="toast-text"><%= formatAlertText(msg) %></div>
         <button type="button" class="toast-close" onclick="dismissSquareToast(this)" aria-label="Close">
           <i class="bi bi-x"></i>
         </button>
@@ -199,7 +194,7 @@
     <% info_msg.forEach(function(msg) { %>
       <div class="square-toast toast-info" role="alert" title="<%= msg %>">
         <div class="toast-icon-box"><i class="bi bi-info-circle-fill"></i></div>
-        <div class="toast-text"><%= clampWords(msg, 5) %></div>
+        <div class="toast-text"><%= formatAlertText(msg) %></div>
         <button type="button" class="toast-close" onclick="dismissSquareToast(this)" aria-label="Close">
           <i class="bi bi-x"></i>
         </button>

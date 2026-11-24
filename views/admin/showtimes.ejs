@@ -87,15 +87,15 @@
                       <div class="text-light"><%= s.theater_name %></div>
                       <div class="small text-secondary"><%= s.screen_name %> (<%= s.theater_city %>)</div>
                     </td>
-                    <td><span class="badge text-bg-warning text-dark fw-bold"><%= s.format %></span></td>
+                    <td><span class="badge text-bg-warning text-dark fw-bold"><%= s.format || '2D' %></span></td>
                     <td>
-                      <div><%= new Date(s.start_time).toLocaleDateString() %></div>
-                      <span class="text-warning fw-bold"><%= new Date(s.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></span>
+                      <div><%= s.show_date_str || (s.show_date ? formatDate(s.show_date) : 'N/A') %></div>
+                      <span class="text-warning fw-bold"><%= s.start_time ? formatTime(s.start_time) : 'N/A' %></span>
                     </td>
                     <td class="text-secondary small">
-                      <%= new Date(s.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %>
+                      <%= s.end_time ? formatTime(s.end_time) : 'N/A' %>
                     </td>
-                    <td class="fw-bold text-success">₹<%= Number(s.base_price).toFixed(2) %></td>
+                    <td class="fw-bold text-success">₹<%= Number(s.base_price || s.ticket_price || 0).toFixed(2) %></td>
                     <td>
                       <span class="badge <%= s.available_seats_count > 0 ? 'bg-info-subtle text-info' : 'bg-danger-subtle text-danger' %> border">
                         <%= s.booked_seats_count %> Booked / <%= s.available_seats_count %> Left

@@ -67,7 +67,7 @@ MovieThreaterSeatBookingManager/
 │   ├── queries.sql          # Operational and analytical SQL queries
 │   ├── schema.sql           # Complete DDL for 16 InnoDB tables, constraints & indexes
 │   └── seed.sql             # Comprehensive seed data for production-like testing
-├── middleware/              # Express Middlewares
+├── middlewares/             # Express Middlewares
 │   ├── auth.js              # Session guards for Customer and Admin routes
 │   ├── csrf.js              # CSRF protection & view token injection
 │   ├── errorHandler.js      # Centralized error & 404 handler

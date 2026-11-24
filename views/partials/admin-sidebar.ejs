@@ -18,18 +18,6 @@
     </div>
   </div>
 
-  <!-- System Status Pulse -->
-  <div class="mx-2 mb-3 px-2.5 py-1.5 rounded-lg bg-[#11141D] border border-[#1E2433] d-flex align-items-center justify-between text-[11px] font-mono text-slate-400">
-    <span class="d-flex align-items-center gap-1.5">
-      <span class="relative flex h-2 w-2">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-      </span>
-      <span>Cluster: Online</span>
-    </span>
-    <span class="text-indigo-400 font-semibold">99.98%</span>
-  </div>
-
   <!-- Admin User Pill -->
   <% if (typeof admin !== 'undefined' && admin) { %>
     <div class="p-2.5 mb-3 bg-[#131722] rounded-xl border border-[#1E2433] d-flex align-items-center gap-2.5 shadow-sm">
@@ -64,10 +52,6 @@
       <i class="bi bi-film me-2.5 text-cyan-400"></i> Movies
     </a>
 
-    <a href="/admin/genres" class="nav-link rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 <%= typeof activePage !== 'undefined' && activePage === 'admin-genres' ? 'active bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/30 border border-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-[#131722] border border-transparent' %>">
-      <i class="bi bi-tags me-2.5 text-cyan-400"></i> Genres
-    </a>
-
     <a href="/admin/theaters" class="nav-link rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 <%= typeof activePage !== 'undefined' && activePage === 'admin-theaters' ? 'active bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/30 border border-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-[#131722] border border-transparent' %>">
       <i class="bi bi-buildings me-2.5 text-indigo-400"></i> Theaters
     </a>
@@ -93,28 +77,8 @@
       <i class="bi bi-ticket-perforated me-2.5 text-emerald-400"></i> Bookings
     </a>
 
-    <a href="/admin/customers" class="nav-link rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 <%= typeof activePage !== 'undefined' && activePage === 'admin-customers' ? 'active bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/30 border border-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-[#131722] border border-transparent' %>">
-      <i class="bi bi-people me-2.5 text-indigo-400"></i> Customers
-    </a>
-
     <a href="/admin/payments" class="nav-link rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 <%= typeof activePage !== 'undefined' && activePage === 'admin-payments' ? 'active bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/30 border border-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-[#131722] border border-transparent' %>">
-      <i class="bi bi-credit-card me-2.5 text-emerald-400"></i> Payments
-    </a>
-
-    <a href="/admin/tickets" class="nav-link rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 <%= typeof activePage !== 'undefined' && activePage === 'admin-tickets' ? 'active bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/30 border border-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-[#131722] border border-transparent' %>">
-      <i class="bi bi-upc me-2.5 text-cyan-400"></i> Tickets
-    </a>
-
-    <a href="/admin/refunds" class="nav-link rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 <%= typeof activePage !== 'undefined' && activePage === 'admin-refunds' ? 'active bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/30 border border-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-[#131722] border border-transparent' %>">
-      <i class="bi bi-arrow-counterclockwise me-2.5 text-rose-400"></i> Refunds
-    </a>
-
-    <a href="/admin/reports" class="nav-link rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 <%= typeof activePage !== 'undefined' && activePage === 'admin-reports' ? 'active bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/30 border border-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-[#131722] border border-transparent' %>">
-      <i class="bi bi-bar-chart-line-fill me-2.5 text-violet-400"></i> Telemetry &amp; Reports
-    </a>
-
-    <a href="/admin/tickets/verify" class="nav-link rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 <%= typeof activePage !== 'undefined' && activePage === 'admin-verify-ticket' ? 'active bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold shadow-lg shadow-indigo-600/30 border border-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-[#131722] border border-transparent' %>">
-      <i class="bi bi-qr-code-scan me-2.5 text-cyan-400"></i> Scanner Console
+      <i class="bi bi-credit-card me-2.5 text-emerald-400"></i> Payments Audit
     </a>
   </div>
 

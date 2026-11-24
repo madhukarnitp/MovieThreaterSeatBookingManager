@@ -1,194 +1,270 @@
-const PaymentService = require('../services/paymentService');
-const BookingService = require('../services/bookingService');
+const { pool } = require('../config/db');
 
-class PaymentController {
-  /**
-   * Handle simulated payment processing request.
-   * POST /bookings/:id/pay
-   */
-  static async processPayment(req, res, next) {
-    try {
-      const bookingId = Number(req.params.id);
-      const customerId = req.session.customer.customer_id;
-      const { payment_method, simulation_action } = req.body;
-
-      const simulateSuccess = simulation_action !== 'fail';
-
-      const result = await PaymentService.processPayment({
-        bookingId,
-        customerId,
-        paymentMethod: payment_method || 'card',
-        simulateSuccess,
-        failureReason: req.body.failure_reason || 'Simulated payment failed / declined by demo provider.'
-      });
-
-      if (result.success) {
-        req.flash('success', result.alreadyPaid 
-          ? 'Your booking is already confirmed!' 
-          : 'Payment simulated successfully! Your tickets are ready.');
-        return res.redirect(`/bookings/${bookingId}/tickets`);
-      } else {
-        req.flash('error', `Payment Simulation Failed: ${result.message}`);
-        return res.redirect(`/bookings/${bookingId}/payment`);
-      }
-    } catch (error) {
-      console.error('Error processing payment simulation:', error.message);
-      req.flash('error', error.message || 'Payment processing error.');
-      const bookingId = req.params.id;
-      return res.redirect(`/bookings/${bookingId}/payment`);
+/**
+ * Display Simplified Simulated Payment Page
+ */
+async function getPaymentPage(req, res, next) {
+  try {
+    if (!req.session || !req.session.user) {
+      req.flash('error', 'Please log in to proceed with payment.');
+      return res.redirect('/login');
     }
-  }
 
-  /**
-   * View all tickets for a confirmed booking.
-   * GET /bookings/:id/tickets
-   */
-  static async viewBookingTickets(req, res, next) {
-    try {
-      const bookingId = Number(req.params.id);
-      const customerId = req.session.customer ? req.session.customer.customer_id : null;
-      const isAdmin = req.session.admin ? true : false;
+    const bookingId = req.params.bookingId || req.params.id;
+    const userId = req.session.user.user_id;
+    const isAdmin = req.session.user.role === 'admin';
 
-      const booking = await PaymentService.getBookingTickets(bookingId, customerId, isAdmin);
+    // 1. Fetch booking details
+    const [bookingRows] = await pool.query(
+      `SELECT b.booking_id, b.booking_ref, b.user_id, b.showtime_id, b.total_amount, b.booking_status, b.booking_date,
+              m.movie_id, m.title AS movie_title, m.poster_url, m.duration_min, m.language,
+              t.name AS theater_name, t.city,
+              sc.screen_name,
+              s.show_date, s.start_time, s.end_time,
+              u.full_name AS customer_name
+       FROM bookings b
+       JOIN users u ON b.user_id = u.user_id
+       JOIN showtimes s ON b.showtime_id = s.showtime_id
+       JOIN movies m ON s.movie_id = m.movie_id
+       JOIN screens sc ON s.screen_id = sc.screen_id
+       JOIN theaters t ON sc.theater_id = t.theater_id
+       WHERE b.booking_id = ?
+       LIMIT 1`,
+      [bookingId]
+    );
 
-      if (!booking) {
-        req.flash('error', 'Booking not found or unauthorized.');
-        return res.redirect('/movies');
-      }
-
-      if (booking.status === 'pending') {
-        req.flash('info', 'Please complete payment to access your tickets.');
-        return res.redirect(`/bookings/${bookingId}/payment`);
-      }
-
-      res.render('bookings/tickets', {
-        title: `Tickets - ${booking.booking_ref}`,
-        booking,
-        csrfToken: req.csrfToken ? req.csrfToken() : ''
-      });
-    } catch (error) {
-      console.error('Error viewing booking tickets:', error);
-      next(error);
+    if (bookingRows.length === 0) {
+      req.flash('error', 'Booking order not found.');
+      return res.redirect('/customer/dashboard');
     }
-  }
 
-  /**
-   * Single printable ticket view.
-   * GET /tickets/:identifier
-   */
-  static async viewSingleTicket(req, res, next) {
-    try {
-      const ticketIdentifier = req.params.identifier;
-      const customerId = req.session.customer ? req.session.customer.customer_id : null;
-      const isAdmin = req.session.admin ? true : false;
+    const booking = bookingRows[0];
 
-      const ticket = await PaymentService.getTicketDetails(ticketIdentifier, customerId, isAdmin);
-
-      if (!ticket) {
-        req.flash('error', 'Ticket not found or unauthorized.');
-        return res.redirect('/movies');
-      }
-
-      res.render('bookings/ticket-print', {
-        title: `Ticket - ${ticket.ticket_number}`,
-        ticket
-      });
-    } catch (error) {
-      console.error('Error viewing ticket:', error);
-      next(error);
+    // Authorization Check: prevent viewing another customer's booking
+    if (!isAdmin && booking.user_id !== userId) {
+      req.flash('error', 'Access denied: You cannot view payment for another customer\'s booking.');
+      return res.redirect('/customer/dashboard');
     }
-  }
 
-  /**
-   * Customer booking and ticket history.
-   * GET /customer/bookings or /customer/tickets
-   */
-  static async viewCustomerHistory(req, res, next) {
-    try {
-      const customerId = (req.session?.customer?.customer_id) 
-                      || (req.session?.user?.id) 
-                      || (req.session?.user?.customer_id);
-
-      if (!customerId) {
-        req.flash('error', 'Please log in to your account.');
-        return res.redirect('/auth/login');
-      }
-
-      const bookings = await PaymentService.getCustomerBookingHistory(customerId);
-
-      res.render('customer/booking-history', {
-        title: 'My Bookings & Tickets',
-        bookings,
-        customer: req.session.customer || req.session.user,
-        user: req.session.user || req.session.customer
-      });
-    } catch (error) {
-      console.error('Error loading booking history:', error);
-      next(error);
+    if (booking.booking_status === 'CONFIRMED') {
+      req.flash('info', 'This booking has already been paid and confirmed.');
+      return res.redirect(`/bookings/${booking.booking_id}/confirmation`);
     }
-  }
 
-  /**
-   * Admin / Staff Ticket Verification Page
-   * GET /admin/tickets/verify
-   */
-  static async renderTicketVerification(req, res, next) {
-    try {
-      res.render('admin/verify-ticket', {
-        title: 'Verify & Check-In Tickets',
-        result: null,
-        error: null,
-        csrfToken: req.csrfToken ? req.csrfToken() : ''
-      });
-    } catch (error) {
-      next(error);
+    if (booking.booking_status === 'CANCELLED') {
+      req.flash('error', 'This booking has been cancelled and seats were released.');
+      return res.redirect('/customer/dashboard');
     }
-  }
 
-  /**
-   * Admin / Staff Process Ticket Verification & Mark as Used
-   * POST /admin/tickets/verify
-   */
-  static async processTicketVerification(req, res, next) {
-    try {
-      const { ticket_identifier } = req.body;
-      if (!ticket_identifier || !ticket_identifier.trim()) {
-        return res.render('admin/verify-ticket', {
-          title: 'Verify & Check-In Tickets',
-          result: null,
-          error: 'Please enter a ticket number or scan a QR code.',
-          csrfToken: req.csrfToken ? req.csrfToken() : ''
-        });
-      }
+    // Fetch seats in this booking
+    const [seats] = await pool.query(
+      `SELECT bs.booking_seat_id, bs.price, st.row_label, st.seat_number, st.seat_type
+       FROM booking_seats bs
+       JOIN seats st ON bs.seat_id = st.seat_id
+       WHERE bs.booking_id = ?
+       ORDER BY st.row_label, st.seat_number`,
+      [bookingId]
+    );
 
-      let parsedCode = ticket_identifier.trim();
-      // If scanned payload is a JSON string from QR code
-      try {
-        const json = JSON.parse(parsedCode);
-        if (json.ticket) {
-          parsedCode = json.ticket;
-        }
-      } catch (e) {
-        // Not JSON, use as-is
-      }
+    booking.seats = seats;
+    booking.seats_list = seats.map(s => `${s.row_label}${s.seat_number}`).join(', ');
+    booking.poster_path = booking.poster_url || '/images/posters/fallback.svg';
+    booking.certification = 'UA';
+    booking.format = '2D';
 
-      const result = await PaymentService.verifyAndUseTicket(parsedCode);
-
-      res.render('admin/verify-ticket', {
-        title: 'Verify & Check-In Tickets',
-        result,
-        error: null,
-        csrfToken: req.csrfToken ? req.csrfToken() : ''
-      });
-    } catch (error) {
-      res.render('admin/verify-ticket', {
-        title: 'Verify & Check-In Tickets',
-        result: null,
-        error: error.message || 'Ticket verification failed.',
-        csrfToken: req.csrfToken ? req.csrfToken() : ''
-      });
+    // Format clean date string safely without timezone offset issues
+    let dateStr = '';
+    if (booking.show_date instanceof Date) {
+      const y = booking.show_date.getFullYear();
+      const m = String(booking.show_date.getMonth() + 1).padStart(2, '0');
+      const d = String(booking.show_date.getDate()).padStart(2, '0');
+      dateStr = `${y}-${m}-${d}`;
+    } else {
+      dateStr = String(booking.show_date || '').split('T')[0];
     }
+    const timeStr = String(booking.start_time || '10:00:00').slice(0, 5);
+
+    let readableDateTime = `${dateStr} at ${timeStr}`;
+    try {
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const mIdx = parseInt(parts[1], 10) - 1;
+        const [hours, mins] = timeStr.split(':').map(Number);
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
+        readableDateTime = `${months[mIdx] || parts[1]} ${parts[2]}, ${parts[0]} at ${displayHours}:${String(mins).padStart(2, '0')} ${ampm}`;
+      }
+    } catch (e) {}
+
+    booking.formatted_datetime = readableDateTime;
+    booking.formatted_date = dateStr;
+    booking.formatted_time = timeStr;
+
+    res.render('bookings/payment', {
+      title: `Confirm Payment: ${booking.booking_ref} - CineSeat Manager`,
+      activePage: 'movies',
+      booking,
+      csrfToken: 'demo-token'
+    });
+  } catch (error) {
+    next(error);
   }
 }
 
-module.exports = PaymentController;
+/**
+ * Process Simple Simulated Payment (ACID Transaction)
+ *
+ * Requirements:
+ * - Single button click triggers simulated payment completion
+ * - Uses MySQL transaction with row lock
+ * - Records payment in payments table
+ * - Updates booking status to CONFIRMED
+ * - Strict authorization check: cannot pay for another user's booking
+ */
+async function processPayment(req, res, next) {
+  let connection;
+  const isJsonReq = req.xhr || req.headers.accept?.includes('application/json') || req.body.format === 'json';
+
+  try {
+    if (!req.session || !req.session.user) {
+      if (isJsonReq) {
+        return res.status(401).json({ success: false, error: 'Authentication required. Please log in.' });
+      }
+      req.flash('error', 'Please log in to continue.');
+      return res.redirect('/login');
+    }
+
+    const userId = req.session.user.user_id;
+    const isAdmin = req.session.user.role === 'admin';
+    const bookingId = req.params?.bookingId || req.params?.id || req.body?.booking_id;
+    const simulationAction = req.body?.simulation_action || (req.body?.fail ? 'fail' : 'success');
+
+    if (!bookingId) {
+      if (isJsonReq) {
+        return res.status(400).json({ success: false, error: 'Booking ID is required.' });
+      }
+      req.flash('error', 'Booking ID is required.');
+      return res.redirect('/customer/dashboard');
+    }
+
+    // Acquire connection for ACID Transaction
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // 1. Fetch booking with row lock
+    const [bookingRows] = await connection.query(
+      `SELECT booking_id, booking_ref, user_id, total_amount, booking_status
+       FROM bookings
+       WHERE booking_id = ?
+       FOR UPDATE`,
+      [bookingId]
+    );
+
+    if (bookingRows.length === 0) {
+      await connection.rollback();
+      if (isJsonReq) {
+        return res.status(404).json({ success: false, error: 'Booking order not found.' });
+      }
+      req.flash('error', 'Booking order not found.');
+      return res.redirect('/customer/dashboard');
+    }
+
+    const booking = bookingRows[0];
+
+    // Authorization Check: Only booking owner or admin can pay
+    if (!isAdmin && booking.user_id !== userId) {
+      await connection.rollback();
+      if (isJsonReq) {
+        return res.status(403).json({ success: false, error: 'Unauthorized: You cannot pay for another customer\'s booking.' });
+      }
+      req.flash('error', 'Access denied: You cannot pay for another customer\'s booking.');
+      return res.redirect('/customer/dashboard');
+    }
+
+    if (booking.booking_status === 'CONFIRMED') {
+      await connection.rollback();
+      if (isJsonReq) {
+        return res.status(200).json({ success: true, message: 'Booking has already been confirmed.', booking_id: bookingId });
+      }
+      req.flash('info', 'Booking has already been confirmed.');
+      return res.redirect(`/bookings/${bookingId}/confirmation`);
+    }
+
+    if (booking.booking_status === 'CANCELLED') {
+      await connection.rollback();
+      if (isJsonReq) {
+        return res.status(400).json({ success: false, error: 'This reservation was cancelled.' });
+      }
+      req.flash('error', 'This reservation was cancelled.');
+      return res.redirect('/customer/dashboard');
+    }
+
+    // Determine simulated payment outcome (default is success)
+    const isSuccess = simulationAction !== 'fail';
+    const paymentStatus = isSuccess ? 'SUCCESS' : 'FAILED';
+    const txnRef = 'TXN-' + Date.now().toString().slice(-8) + '-' + Math.floor(1000 + Math.random() * 9000);
+
+    // 2. Insert Payment Record
+    const [paymentResult] = await connection.query(
+      `INSERT INTO payments (booking_id, transaction_ref, payment_method, amount, payment_status)
+       VALUES (?, ?, 'UPI', ?, ?)`,
+      [bookingId, txnRef, booking.total_amount, paymentStatus]
+    );
+
+    if (isSuccess) {
+      // 3. Update Booking Status to CONFIRMED
+      await connection.query(
+        `UPDATE bookings
+         SET booking_status = 'CONFIRMED'
+         WHERE booking_id = ?`,
+        [bookingId]
+      );
+
+      await connection.commit();
+
+      if (isJsonReq) {
+        return res.status(200).json({
+          success: true,
+          booking_id: bookingId,
+          transaction_ref: txnRef,
+          payment_status: 'SUCCESS',
+          booking_status: 'CONFIRMED',
+          amount: booking.total_amount
+        });
+      }
+
+      req.flash('success', `Payment of ₹${Number(booking.total_amount).toFixed(2)} successful! Booking confirmed.`);
+      return res.redirect(`/bookings/${bookingId}/confirmation`);
+    } else {
+      // Failed payment simulation
+      await connection.commit();
+
+      if (isJsonReq) {
+        return res.status(402).json({
+          success: false,
+          booking_id: bookingId,
+          transaction_ref: txnRef,
+          payment_status: 'FAILED',
+          error: 'Simulated payment was declined.'
+        });
+      }
+
+      req.flash('error', 'Simulated payment was declined. Please try again.');
+      return res.redirect(`/bookings/${bookingId}/payment`);
+    }
+  } catch (error) {
+    if (connection) await connection.rollback();
+    if (isJsonReq) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+module.exports = {
+  getPaymentPage,
+  processPayment
+};

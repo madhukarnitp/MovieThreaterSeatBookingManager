@@ -50,12 +50,13 @@
                         <span class="text-secondary small">None</span>
                       <% } %>
                     </td>
-                    <td class="small text-secondary"><%= new Date(p.created_at).toLocaleString() %></td>
+                    <td class="small text-secondary"><%= new Date(p.created_at || p.payment_date).toLocaleString() %></td>
                     <td>
-                      <% if (p.payment_status === 'success') { %>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle">Success</span>
-                      <% } else if (p.payment_status === 'refunded') { %>
-                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Refunded</span>
+                      <% const pStat = String(p.payment_status).toUpperCase(); %>
+                      <% if (pStat === 'SUCCESS') { %>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">SUCCESS</span>
+                      <% } else if (pStat === 'PENDING') { %>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">PENDING</span>
                       <% } else { %>
                         <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><%= p.payment_status %></span>
                       <% } %>
