@@ -1,56 +1,58 @@
 <%- include('../partials/header') %>
 
-<div class="container-fluid">
+<div class="container-fluid min-vh-100">
   <div class="row">
+    <!-- Admin Sidebar -->
     <%- include('../partials/admin-sidebar') %>
 
+    <!-- Main Content Area -->
     <div class="col-lg-9 col-xl-10 p-4 p-md-5">
-      <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-slate-800/80">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
         <div>
-          <h2 class="fw-bold text-white mb-1 text-2xl tracking-wide">Seat Matrix Configuration</h2>
-          <p class="text-slate-400 text-xs mb-0">Configure rows, seat numbers, tier categories (Standard, Premium, Recliner) and active statuses</p>
+          <h2 class="fw-bold text-white mb-1">Seat Matrix Configuration</h2>
+          <p class="text-secondary small mb-0">Configure rows, seat numbers, and tier categories (Standard, Premium, VIP) for each screen</p>
         </div>
         <div class="d-flex gap-2">
-          <button type="button" class="btn btn-outline-info rounded-xl px-3 fw-semibold btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#addSingleSeatModal">
+          <button type="button" class="btn btn-outline-info rounded-pill px-3 fw-semibold btn-sm" data-bs-toggle="modal" data-bs-target="#addSingleSeatModal">
             <i class="bi bi-plus me-1"></i> Add Single Seat
           </button>
-          <button type="button" class="btn btn-warning rounded-xl px-3 fw-semibold btn-sm text-slate-950 shadow-md shadow-amber-500/20" data-bs-toggle="modal" data-bs-target="#batchSeatModal">
+          <button type="button" class="btn btn-warning rounded-pill px-3 fw-semibold btn-sm text-dark" data-bs-toggle="modal" data-bs-target="#batchSeatModal">
             <i class="bi bi-grid-3x3 me-1"></i> Batch Generate Row
           </button>
         </div>
       </div>
 
       <!-- Screen Selector Bar -->
-      <div class="rounded-2xl bg-slate-900/80 border border-slate-800 p-3.5 mb-4 shadow-lg backdrop-blur-sm">
+      <div class="card bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded-4 p-3 mb-4 shadow-sm">
         <form action="/admin/seats" method="GET" class="row g-2 align-items-center">
           <div class="col-md-6">
             <div class="input-group">
-              <span class="input-group-text bg-slate-950 border-slate-800 text-slate-400"><i class="bi bi-display"></i></span>
-              <select name="screen_id" class="form-select bg-slate-950 text-slate-200 border-slate-800 rounded-r-xl" onchange="this.form.submit()">
+              <span class="input-group-text bg-dark border-secondary border-opacity-25 text-secondary"><i class="bi bi-display"></i></span>
+              <select name="screen_id" class="form-select bg-dark text-light border-secondary border-opacity-25" onchange="this.form.submit()">
                 <% if (screens) { %>
                   <% screens.forEach(function(sc) { %>
                     <option value="<%= sc.screen_id %>" <%= Number(selectedScreenId) === Number(sc.screen_id) ? 'selected' : '' %>>
-                      <%= sc.theater_name %> &bull; <%= sc.screen_name %> (<%= sc.screen_type %>)
+                      <%= sc.theater_name %> &bull; <%= sc.screen_name %> (<%= sc.total_capacity %> capacity)
                     </option>
                   <% }); %>
                 <% } %>
               </select>
             </div>
           </div>
-          <div class="col-md-6 text-md-end text-slate-400 text-xs">
+          <div class="col-md-6 text-md-end text-secondary small">
             <% if (selectedScreen) { %>
-              Total Configured: <strong class="text-white font-semibold"><%= seats.length %></strong> seats &bull; 
-              Screen Target Capacity: <strong class="text-white font-semibold"><%= selectedScreen.total_capacity %></strong>
+              Total Configured: <strong class="text-white"><%= seats.length %></strong> seats &bull; 
+              Auditorium Capacity: <strong class="text-white"><%= selectedScreen.total_capacity %></strong>
             <% } %>
           </div>
         </form>
       </div>
 
       <!-- Visual Seating Layout Preview Box -->
-      <div class="rounded-2xl bg-slate-950 border border-slate-800 p-5 mb-4 text-center shadow-xl">
+      <div class="card bg-black border border-secondary border-opacity-25 rounded-4 p-4 mb-4 text-center shadow-sm">
         <!-- Cinema Screen Simulation -->
-        <div class="w-3/4 mx-auto mb-4 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-slate-300 text-xs uppercase tracking-widest font-bold shadow-md">
-          <i class="bi bi-display me-1 text-amber-400"></i> Screen / Stage Direction
+        <div class="w-75 mx-auto mb-4 py-1.5 rounded-3 bg-secondary bg-opacity-25 border border-secondary border-opacity-25 text-secondary small text-uppercase fw-bold">
+          <i class="bi bi-display me-1 text-warning"></i> Screen / Stage Direction
         </div>
 
         <!-- Seat Badges Grid Preview -->
@@ -58,41 +60,39 @@
           <% if (seats && seats.length > 0) { %>
             <% seats.forEach(function(s) { %>
               <div 
-                class="badge p-2 d-flex flex-column align-items-center justify-content-center border rounded-lg transition-transform duration-150 hover:scale-110 shadow-sm <%= s.is_active ? '' : 'opacity-25' %>" 
-                <%- `style="min-width: 44px; background-color: ${s.is_active ? s.color_code : '#334155'}; color: #fff;"` %>
-                title="Seat <%= s.row_label %><%= s.seat_number %> &bull; <%= s.seat_type_name %> (<%= s.is_active ? 'Active' : 'Disabled' %>)"
+                class="badge p-2 d-flex flex-column align-items-center justify-content-center border rounded-2" 
+                <%- `style="min-width: 44px; background-color: ${s.color_code || '#3b82f6'}; color: #fff;"` %>
+                title="Seat <%= s.row_label %><%= s.seat_number %> &bull; <%= s.seat_type_name %>"
               >
-                <div class="fw-bold text-[11px]"><%= s.row_label %><%= s.seat_number %></div>
-                <div class="text-[9px] uppercase tracking-wider opacity-90"><%= s.seat_type_name.slice(0, 3) %></div>
+                <div class="fw-bold"><%= s.row_label %><%= s.seat_number %></div>
+                <div class="text-uppercase" style="font-size: 0.65rem;"><%= s.seat_type_name.slice(0, 3) %></div>
               </div>
             <% }); %>
           <% } else { %>
-            <div class="text-slate-400 py-3 text-sm">No seats configured for this screen yet. Use the Batch Generate button to create rows.</div>
+            <div class="text-secondary py-3 small">No seats configured for this screen yet. Use the Batch Generate button to create rows.</div>
           <% } %>
         </div>
 
         <!-- Legend -->
-        <div class="d-flex justify-content-center flex-wrap gap-4 text-slate-400 text-xs pt-3 border-t border-slate-800">
-          <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blue-500 inline-block shadow-sm"></span> Standard</div>
-          <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500 inline-block shadow-sm"></span> Premium</div>
-          <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-purple-500 inline-block shadow-sm"></span> Recliner</div>
-          <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-600 inline-block opacity-50 shadow-sm"></span> Deactivated</div>
+        <div class="d-flex justify-content-center flex-wrap gap-4 text-secondary small pt-3 border-top border-secondary border-opacity-25">
+          <div class="d-flex align-items-center gap-1.5"><span class="badge" style="width: 12px; height: 12px; background-color: #3b82f6;"></span> Standard</div>
+          <div class="d-flex align-items-center gap-1.5"><span class="badge" style="width: 12px; height: 12px; background-color: #f59e0b;"></span> Premium</div>
+          <div class="d-flex align-items-center gap-1.5"><span class="badge" style="width: 12px; height: 12px; background-color: #8b5cf6;"></span> VIP</div>
         </div>
       </div>
 
       <!-- Seats Table List -->
-      <div class="rounded-2xl bg-slate-900/80 border border-slate-800 p-4 shadow-xl backdrop-blur-sm">
+      <div class="card bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded-4 p-4 shadow-sm">
         <div class="table-responsive">
           <table class="table table-dark table-hover align-middle mb-0">
             <thead>
-              <tr class="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+              <tr class="text-secondary small">
                 <th>ROW</th>
                 <th>NUMBER</th>
                 <th>CODE</th>
-                <th>CATEGORY</th>
-                <th>BOOKING HISTORY</th>
-                <th>STATUS</th>
-                <th class="text-end">ACTIONS</th>
+                <th>CATEGORY TIER</th>
+                <th>HISTORICAL BOOKINGS</th>
+                <th class="text-end">ACTION</th>
               </tr>
             </thead>
             <tbody>
@@ -101,9 +101,9 @@
                   <tr>
                     <td class="fw-bold text-warning"><%= s.row_label %></td>
                     <td><%= s.seat_number %></td>
-                    <td><span class="badge text-bg-dark border border-secondary-subtle"><%= s.row_label %><%= s.seat_number %></span></td>
+                    <td><span class="badge text-bg-dark border border-secondary border-opacity-25"><%= s.row_label %><%= s.seat_number %></span></td>
                     <td>
-                      <span class="badge border" <%- `style="background-color: ${s.color_code}; color: #fff;"` %>>
+                      <span class="badge border" <%- `style="background-color: ${s.color_code || '#3b82f6'}; color: #fff;"` %>>
                         <%= s.seat_type_name %>
                       </span>
                     </td>
@@ -114,40 +114,21 @@
                         <span class="text-secondary small">No bookings yet</span>
                       <% } %>
                     </td>
-                    <td>
-                      <% if (s.is_active) { %>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle">Active</span>
-                      <% } else { %>
-                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Inactive</span>
-                      <% } %>
-                    </td>
                     <td class="text-end">
-                      <div class="btn-group btn-group-sm">
-                        <!-- Toggle Active Form -->
-                        <form action="/admin/seats/<%= s.seat_id %>/toggle" method="POST" class="d-inline">
-                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                          <input type="hidden" name="screen_id" value="<%= s.screen_id %>">
-                          <input type="hidden" name="is_active" value="<%= s.is_active ? 0 : 1 %>">
-                          <button type="submit" class="btn <%= s.is_active ? 'btn-outline-warning' : 'btn-outline-success' %>" title="<%= s.is_active ? 'Deactivate seat' : 'Activate seat' %>">
-                            <i class="bi <%= s.is_active ? 'bi-pause-circle' : 'bi-play-circle' %>"></i>
-                          </button>
-                        </form>
-
-                        <!-- Delete Form -->
-                        <form action="/admin/seats/<%= s.seat_id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete physical seat <%= s.row_label %><%= s.seat_number %>?');">
-                          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                          <input type="hidden" name="screen_id" value="<%= s.screen_id %>">
-                          <button type="submit" class="btn btn-outline-danger" <%= s.booking_history_count > 0 ? 'disabled title="Cannot delete seat referenced in historical bookings"' : '' %>>
-                            <i class="bi bi-trash"></i>
-                          </button>
-                        </form>
-                      </div>
+                      <!-- Delete Form -->
+                      <form action="/admin/seats/<%= s.seat_id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete physical seat <%= s.row_label %><%= s.seat_number %>?');">
+                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <input type="hidden" name="screen_id" value="<%= s.screen_id %>">
+                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3" <%= s.booking_history_count > 0 ? 'disabled title="Cannot delete seat referenced in historical bookings"' : '' %>>
+                          <i class="bi bi-trash me-1"></i> Delete
+                        </button>
+                      </form>
                     </td>
                   </tr>
                 <% }); %>
               <% } else { %>
                 <tr>
-                  <td colspan="7" class="text-center text-secondary py-5">No physical seats configured for this screen.</td>
+                  <td colspan="6" class="text-center text-secondary py-4">No physical seats configured for this screen.</td>
                 </tr>
               <% } %>
             </tbody>
@@ -161,11 +142,11 @@
 <!-- Add Single Seat Modal -->
 <div class="modal fade" id="addSingleSeatModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark border border-secondary-subtle text-light">
+    <div class="modal-content bg-dark border border-secondary border-opacity-25 text-light">
       <form action="/admin/seats" method="POST">
         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
         <input type="hidden" name="screen_id" value="<%= selectedScreenId %>">
-        <div class="modal-header border-secondary-subtle">
+        <div class="modal-header border-secondary border-opacity-25">
           <h5 class="modal-title fw-bold">Add Single Physical Seat</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
@@ -173,15 +154,15 @@
           <div class="row g-3">
             <div class="col-6">
               <label class="form-label small fw-semibold">Row Label (A-Z) <span class="text-danger">*</span></label>
-              <input type="text" name="row_label" class="form-control bg-black text-light border-secondary-subtle" placeholder="e.g. A" maxlength="3" required>
+              <input type="text" name="row_label" class="form-control bg-black text-light border-secondary border-opacity-25" placeholder="e.g. A" maxlength="3" required>
             </div>
             <div class="col-6">
               <label class="form-label small fw-semibold">Seat Number <span class="text-danger">*</span></label>
-              <input type="number" name="seat_number" class="form-control bg-black text-light border-secondary-subtle" placeholder="e.g. 1" min="1" max="999" required>
+              <input type="number" name="seat_number" class="form-control bg-black text-light border-secondary border-opacity-25" placeholder="e.g. 1" min="1" max="999" required>
             </div>
             <div class="col-12">
               <label class="form-label small fw-semibold">Seat Category Tier <span class="text-danger">*</span></label>
-              <select name="seat_type_id" class="form-select bg-black text-light border-secondary-subtle" required>
+              <select name="seat_type_id" class="form-select bg-black text-light border-secondary border-opacity-25" required>
                 <% if (seatTypes) { %>
                   <% seatTypes.forEach(function(st) { %>
                     <option value="<%= st.seat_type_id %>"><%= st.name %></option>
@@ -191,7 +172,7 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer border-secondary-subtle">
+        <div class="modal-footer border-secondary border-opacity-25">
           <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-warning rounded-pill fw-semibold text-dark">Add Seat</button>
         </div>
@@ -203,11 +184,11 @@
 <!-- Batch Generate Row Seats Modal -->
 <div class="modal fade" id="batchSeatModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark border border-secondary-subtle text-light">
+    <div class="modal-content bg-dark border border-secondary border-opacity-25 text-light">
       <form action="/admin/seats/batch" method="POST">
         <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
         <input type="hidden" name="screen_id" value="<%= selectedScreenId %>">
-        <div class="modal-header border-secondary-subtle">
+        <div class="modal-header border-secondary border-opacity-25">
           <h5 class="modal-title fw-bold"><i class="bi bi-grid-3x3 me-2 text-warning"></i>Batch Generate Row Seats</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
@@ -215,19 +196,19 @@
           <div class="row g-3">
             <div class="col-12">
               <label class="form-label small fw-semibold">Row Designation (e.g. B, C) <span class="text-danger">*</span></label>
-              <input type="text" name="row_label" class="form-control bg-black text-light border-secondary-subtle" placeholder="e.g. B" maxlength="3" required>
+              <input type="text" name="row_label" class="form-control bg-black text-light border-secondary border-opacity-25" placeholder="e.g. B" maxlength="3" required>
             </div>
             <div class="col-6">
               <label class="form-label small fw-semibold">Start Number <span class="text-danger">*</span></label>
-              <input type="number" name="start_number" class="form-control bg-black text-light border-secondary-subtle" value="1" min="1" max="999" required>
+              <input type="number" name="start_number" class="form-control bg-black text-light border-secondary border-opacity-25" value="1" min="1" max="999" required>
             </div>
             <div class="col-6">
               <label class="form-label small fw-semibold">End Number <span class="text-danger">*</span></label>
-              <input type="number" name="end_number" class="form-control bg-black text-light border-secondary-subtle" value="10" min="1" max="999" required>
+              <input type="number" name="end_number" class="form-control bg-black text-light border-secondary border-opacity-25" value="10" min="1" max="999" required>
             </div>
             <div class="col-12">
               <label class="form-label small fw-semibold">Row Category Tier <span class="text-danger">*</span></label>
-              <select name="seat_type_id" class="form-select bg-black text-light border-secondary-subtle" required>
+              <select name="seat_type_id" class="form-select bg-black text-light border-secondary border-opacity-25" required>
                 <% if (seatTypes) { %>
                   <% seatTypes.forEach(function(st) { %>
                     <option value="<%= st.seat_type_id %>"><%= st.name %></option>
@@ -237,7 +218,7 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer border-secondary-subtle">
+        <div class="modal-footer border-secondary border-opacity-25">
           <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-warning rounded-pill fw-semibold text-dark">Generate Seats</button>
         </div>

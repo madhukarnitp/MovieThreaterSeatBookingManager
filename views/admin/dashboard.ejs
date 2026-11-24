@@ -1,233 +1,172 @@
 <%- include('../partials/header') %>
 
-<div class="container-fluid bg-[#07080C] min-vh-100 text-slate-100">
-  <div class="row g-0">
+<div class="container-fluid min-vh-100">
+  <div class="row">
     <!-- Admin Sidebar Partial -->
     <%- include('../partials/admin-sidebar') %>
 
     <!-- Main Admin Content Area -->
-    <div class="col-lg-9 col-xl-10 p-4 p-md-5 bg-[#07080C]">
-      <!-- Command Bar Header -->
-      <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-b border-[#1E2433] gap-3">
+    <div class="col-lg-9 col-xl-10 p-4 p-md-5">
+      <!-- Dashboard Header -->
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25 gap-3">
         <div>
           <div class="d-flex align-items-center gap-2">
-            <h2 class="text-xl md:text-2xl font-extrabold text-white mb-0 font-sans tracking-tight">Cinema Operations Dashboard</h2>
+            <span class="badge bg-danger p-2 rounded-2"><i class="bi bi-speedometer2 fs-6"></i></span>
+            <h2 class="fw-bold text-white mb-0">DBMS Operations Dashboard</h2>
           </div>
-          <p class="text-slate-400 text-xs font-mono mt-1 mb-0">Cinema management &bull; Real-time operations overview</p>
+          <p class="text-secondary small mb-0 mt-1">
+            Movie Theater Database Management System &bull; 3rd Semester Laboratory Project
+          </p>
         </div>
         <div class="d-flex flex-wrap gap-2">
-          <a href="/admin/bookings" class="btn btn-sm rounded-xl px-3 font-mono text-xs d-flex align-items-center gap-1.5 bg-[#131722] hover:bg-[#1A202E] text-indigo-300 border border-indigo-500/30 shadow-sm transition-all">
-            <i class="bi bi-ticket-perforated-fill text-[#6366F1]"></i> Audit Bookings
+          <a href="/admin/movies" class="btn btn-outline-warning btn-sm rounded-pill px-3">
+            <i class="bi bi-film me-1"></i> Manage Movies
           </a>
-          <a href="/admin/payments" class="btn btn-sm rounded-xl px-3 font-mono text-xs d-flex align-items-center gap-1.5 bg-[#131722] hover:bg-[#1A202E] text-cyan-300 border border-cyan-500/30 shadow-sm transition-all">
-            <i class="bi bi-credit-card-2-front-fill text-[#00F0FF]"></i> Payments Audit
+          <a href="/admin/showtimes" class="btn btn-outline-info btn-sm rounded-pill px-3">
+            <i class="bi bi-calendar-event me-1"></i> Showtimes
           </a>
-          <a href="/admin/showtimes" class="btn btn-sm rounded-xl px-3 font-mono text-xs d-flex align-items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold shadow-lg shadow-indigo-600/25 border border-indigo-400/40 transition-all">
-            <i class="bi bi-plus-lg"></i> Schedule Showtime
+          <a href="/admin/bookings" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold">
+            <i class="bi bi-ticket-perforated me-1"></i> Audit Bookings
           </a>
         </div>
       </div>
 
-      <!-- KPI Metrics Grid (ZeBeyond Graphite Glass with Accent Indicators) -->
+      <!-- DBMS Aggregate Statistics Cards (Row 1) -->
       <div class="row g-3 mb-4">
-        <!-- Revenue Metric -->
+        <!-- Metric 1: Total Revenue -->
         <div class="col-sm-6 col-xl-3">
-          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 relative overflow-hidden group hover:border-[#6366F1]/50 transition-all duration-300 shadow-xl">
-            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#10B981] to-[#00F0FF]"></div>
+          <div class="card bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded-4 p-3 shadow-sm h-100">
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <span class="text-slate-400 text-[11px] font-mono uppercase tracking-wider">Gross Settled ARR</span>
-              <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
-                <i class="bi bi-currency-rupee text-sm"></i>
+              <span class="text-secondary small fw-bold text-uppercase" style="font-size: 0.75rem;">Total Revenue</span>
+              <div class="rounded-circle bg-success bg-opacity-10 text-success p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                <i class="bi bi-currency-rupee"></i>
               </div>
             </div>
-            <div class="text-2xl md:text-3xl font-extrabold text-white font-mono tracking-tight mb-1">
+            <div class="fs-4 fw-bold text-white mb-1">
               ₹<%= metrics.totalSuccessfulRevenue.toFixed(2) %>
             </div>
-            <div class="d-flex align-items-center gap-1.5 text-[11px] font-mono text-emerald-400">
-              <i class="bi bi-shield-check"></i>
-              <span>100% Verified Settled</span>
+            <div class="small text-success d-flex align-items-center gap-1">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Payments Table &bull; SUCCESS</span>
             </div>
           </div>
         </div>
 
-        <!-- Total Bookings -->
+        <!-- Metric 2: Total Bookings -->
         <div class="col-sm-6 col-xl-3">
-          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 relative overflow-hidden group hover:border-[#6366F1]/50 transition-all duration-300 shadow-xl">
-            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]"></div>
+          <div class="card bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded-4 p-3 shadow-sm h-100">
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <span class="text-slate-400 text-[11px] font-mono uppercase tracking-wider">Total Bookings</span>
-              <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
-                <i class="bi bi-ticket-perforated text-sm"></i>
+              <span class="text-secondary small fw-bold text-uppercase" style="font-size: 0.75rem;">Confirmed Bookings</span>
+              <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                <i class="bi bi-ticket-perforated"></i>
               </div>
             </div>
-            <div class="text-2xl md:text-3xl font-extrabold text-white font-mono tracking-tight mb-1">
-              <%= metrics.totalBookings %>
+            <div class="fs-4 fw-bold text-white mb-1">
+              <%= metrics.totalConfirmedBookings %>
             </div>
-            <div class="d-flex align-items-center gap-1.5 text-[11px] font-mono text-indigo-400">
-              <span class="text-slate-400">Confirmed:</span> <%= metrics.confirmedBookings %>
-              <span class="text-slate-500">&bull;</span>
-              <span class="text-amber-400">Hold: <%= metrics.pendingBookings %></span>
+            <div class="small text-secondary">
+              Bookings Table &bull; CONFIRMED
             </div>
           </div>
         </div>
 
-        <!-- Movies In Catalog -->
+        <!-- Metric 3: Movies in Catalog -->
         <div class="col-sm-6 col-xl-3">
-          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 relative overflow-hidden group hover:border-[#6366F1]/50 transition-all duration-300 shadow-xl">
-            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#00F0FF] to-[#38BDF8]"></div>
+          <div class="card bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded-4 p-3 shadow-sm h-100">
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <span class="text-slate-400 text-[11px] font-mono uppercase tracking-wider">Active Catalog</span>
-              <div class="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20">
-                <i class="bi bi-film text-sm"></i>
+              <span class="text-secondary small fw-bold text-uppercase" style="font-size: 0.75rem;">Catalog Movies</span>
+              <div class="rounded-circle bg-warning bg-opacity-10 text-warning p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                <i class="bi bi-film"></i>
               </div>
             </div>
-            <div class="text-2xl md:text-3xl font-extrabold text-white font-mono tracking-tight mb-1">
-              <%= metrics.totalMovies %>
+            <div class="fs-4 fw-bold text-white mb-1">
+              <%= metrics.activeMovies %>
             </div>
-            <div class="d-flex align-items-center gap-1.5 text-[11px] font-mono text-cyan-400">
-              <i class="bi bi-play-circle"></i>
-              <span>Active Titles Across Theaters</span>
+            <div class="small text-warning">
+              Movies Table &bull; Active Titles
             </div>
           </div>
         </div>
 
-        <!-- Facilities (Theaters / Screens) -->
+        <!-- Metric 4: Theaters & Screens -->
         <div class="col-sm-6 col-xl-3">
-          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 relative overflow-hidden group hover:border-[#6366F1]/50 transition-all duration-300 shadow-xl">
-            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#F59E0B] to-[#EF4444]"></div>
+          <div class="card bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded-4 p-3 shadow-sm h-100">
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <span class="text-slate-400 text-[11px] font-mono uppercase tracking-wider">Screening Units</span>
-              <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
-                <i class="bi bi-display text-sm"></i>
+              <span class="text-secondary small fw-bold text-uppercase" style="font-size: 0.75rem;">Venues &amp; Screens</span>
+              <div class="rounded-circle bg-info bg-opacity-10 text-info p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                <i class="bi bi-buildings"></i>
               </div>
             </div>
-            <div class="text-2xl md:text-3xl font-extrabold text-white font-mono tracking-tight mb-1">
-              <%= metrics.totalScreens %> <span class="text-xs text-slate-400 font-normal">in <%= metrics.totalTheaters %> Theaters</span>
+            <div class="fs-4 fw-bold text-white mb-1">
+              <%= metrics.totalTheaters %> <span class="fs-6 fw-normal text-secondary">Venues</span> &bull; <%= metrics.totalScreens %> <span class="fs-6 fw-normal text-secondary">Screens</span>
             </div>
-            <div class="d-flex align-items-center gap-1.5 text-[11px] font-mono text-amber-400">
-              <i class="bi bi-people"></i>
-              <span>Patrons: <%= metrics.totalCustomers %></span>
+            <div class="small text-info">
+              <%= metrics.totalCustomers %> Registered Customers
             </div>
           </div>
         </div>
       </div>
 
-      <!-- High-tech Funnel Bar -->
-      <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-3 mb-4 shadow-xl">
-        <div class="row g-2 text-center font-mono">
-          <div class="col-6 col-md-3 border-end border-[#1E2433]">
-            <div class="text-[10px] text-slate-400 uppercase tracking-wider">Pipeline Total</div>
-            <div class="text-lg font-bold text-white"><%= metrics.totalBookings %></div>
-          </div>
-          <div class="col-6 col-md-3 border-end border-[#1E2433]">
-            <div class="text-[10px] text-emerald-400 uppercase tracking-wider">Confirmed Execution</div>
-            <div class="text-lg font-bold text-emerald-400"><%= metrics.confirmedBookings %></div>
-          </div>
-          <div class="col-6 col-md-3 border-end border-[#1E2433]">
-            <div class="text-[10px] text-amber-400 uppercase tracking-wider">Pending Lock</div>
-            <div class="text-lg font-bold text-amber-400"><%= metrics.pendingBookings %></div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="text-[10px] text-rose-400 uppercase tracking-wider">Aborted / Expired</div>
-            <div class="text-lg font-bold text-rose-400"><%= metrics.cancelledBookings + metrics.expiredBookings %></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Charts Section (Graphite Glass Panels) -->
+      <!-- Relational Data Tables (Row 2) -->
       <div class="row g-4 mb-4">
-        <!-- Booking & Revenue Trends -->
-        <div class="col-lg-7">
-          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 h-100 shadow-xl relative">
+        <!-- Recent Bookings Table (Col 8) -->
+        <div class="col-lg-8">
+          <div class="card bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded-4 p-4 shadow-sm h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <div>
-                <h5 class="text-sm font-bold text-white font-mono uppercase tracking-wider mb-0 flex items-center gap-2">
-                  <i class="bi bi-graph-up text-[#00F0FF]"></i> Velocity &amp; Revenue Trends
-                </h5>
-                <span class="text-[11px] text-slate-400 font-mono">Rolling 7-day execution telemetry</span>
+                <h5 class="fw-bold text-white mb-0">Recent Customer Bookings</h5>
+                <p class="text-secondary small mb-0">Transactions joining Users, Bookings, Showtimes, &amp; Movies</p>
               </div>
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#1E2433] text-indigo-300 border border-indigo-500/20">LIVE AGGREGATE</span>
-            </div>
-            <div style="height: 270px; position: relative;">
-              <canvas id="trendChart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Revenue by Movie -->
-        <div class="col-lg-5">
-          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 h-100 shadow-xl relative">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div>
-                <h5 class="text-sm font-bold text-white font-mono uppercase tracking-wider mb-0 flex items-center gap-2">
-                  <i class="bi bi-pie-chart text-[#8B5CF6]"></i> Yield Share by Title
-                </h5>
-                <span class="text-[11px] text-slate-400 font-mono">Confirmed ticket proceeds</span>
-              </div>
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#1E2433] text-cyan-300 border border-cyan-500/20">SETTLED</span>
-            </div>
-            <div style="height: 270px; position: relative;" class="d-flex align-items-center justify-content-center">
-              <canvas id="moviePieChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Transactions & Audit Stream -->
-      <div class="row g-4">
-        <!-- Recent Bookings Table -->
-        <div class="col-lg-7">
-          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 shadow-xl">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="text-sm font-bold text-white font-mono uppercase tracking-wider mb-0 flex items-center gap-2">
-                <i class="bi bi-ticket-perforated text-emerald-400"></i> Recent Booking Dispatches
-              </h5>
-              <a href="/admin/bookings" class="text-xs font-mono text-indigo-400 hover:text-indigo-300 transition-colors">Inspect All &rarr;</a>
+              <a href="/admin/bookings" class="btn btn-outline-secondary btn-sm rounded-pill text-light px-3">
+                View All <i class="bi bi-arrow-right ms-1"></i>
+              </a>
             </div>
 
-            <div class="overflow-x-auto">
-              <table class="w-100 text-left text-xs font-sans">
+            <div class="table-responsive">
+              <table class="table table-dark table-hover align-middle mb-0">
                 <thead>
-                  <tr class="text-slate-400 border-b border-[#1E2433] font-mono text-[11px]">
-                    <th class="py-2.5 px-3">REF</th>
-                    <th class="py-2.5 px-3">CUSTOMER</th>
-                    <th class="py-2.5 px-3">MOVIE / THEATER</th>
-                    <th class="py-2.5 px-3">AMOUNT</th>
-                    <th class="py-2.5 px-3">STATUS</th>
+                  <tr class="text-secondary small">
+                    <th>BOOKING REF</th>
+                    <th>CUSTOMER</th>
+                    <th>MOVIE &amp; VENUE</th>
+                    <th>AMOUNT</th>
+                    <th>STATUS</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-[#1E2433]">
+                <tbody>
                   <% if (recentBookings && recentBookings.length > 0) { %>
                     <% recentBookings.forEach(function(b) { %>
-                      <tr class="hover:bg-[#131722] transition-colors">
-                        <td class="py-2.5 px-3">
-                          <code class="text-indigo-300 font-mono font-semibold"><%= b.booking_ref %></code>
+                      <tr>
+                        <td>
+                          <span class="badge text-bg-dark border border-secondary border-opacity-25 font-monospace">
+                            <%= b.booking_ref %>
+                          </span>
                         </td>
-                        <td class="py-2.5 px-3">
-                          <div class="font-medium text-white"><%= b.customer_name %></div>
-                          <div class="text-slate-500 text-[10px] font-mono"><%= b.customer_email %></div>
+                        <td>
+                          <div class="fw-semibold text-white small"><%= b.customer_name %></div>
+                          <div class="text-secondary" style="font-size: 0.75rem;"><%= b.customer_email %></div>
                         </td>
-                        <td class="py-2.5 px-3">
-                          <div class="text-slate-200 truncate max-w-[140px] font-medium"><%= b.movie_title %></div>
-                          <div class="text-slate-500 text-[10px] font-mono"><%= b.theater_name %></div>
+                        <td>
+                          <div class="text-warning small fw-semibold"><%= b.movie_title %></div>
+                          <div class="text-secondary" style="font-size: 0.75rem;"><%= b.theater_name %> &bull; <%= b.screen_name %></div>
                         </td>
-                        <td class="py-2.5 px-3 font-mono font-bold text-white">
-                          ₹<%= Number(b.total_amount).toFixed(2) %>
+                        <td class="fw-bold text-white">
+                          ₹<%= parseFloat(b.total_amount).toFixed(2) %>
                         </td>
-                        <td class="py-2.5 px-3">
-                          <% if (b.status === 'confirmed') { %>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Confirmed</span>
-                          <% } else if (b.status === 'pending') { %>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-amber-500/15 text-amber-300 border border-amber-500/30">Pending</span>
+                        <td>
+                          <% if (b.booking_status === 'CONFIRMED') { %>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">CONFIRMED</span>
+                          <% } else if (b.booking_status === 'PENDING') { %>
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle">PENDING</span>
                           <% } else { %>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-slate-800 text-slate-300 border border-slate-700"><%= b.status %></span>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><%= b.booking_status %></span>
                           <% } %>
                         </td>
                       </tr>
                     <% }); %>
                   <% } else { %>
                     <tr>
-                      <td colspan="5" class="text-center text-slate-500 py-4 font-mono">No booking telemetry recorded.</td>
+                      <td colspan="5" class="text-center text-secondary py-4">No recent bookings recorded.</td>
                     </tr>
                   <% } %>
                 </tbody>
@@ -236,50 +175,48 @@
           </div>
         </div>
 
-        <!-- Recent Payments Table -->
-        <div class="col-lg-5">
-          <div class="bg-[#11141D] border border-[#1E2433] rounded-2xl p-4 shadow-xl">
+        <!-- Top Performing Movies by Revenue (Col 4) -->
+        <div class="col-lg-4">
+          <div class="card bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded-4 p-4 shadow-sm h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="text-sm font-bold text-white font-mono uppercase tracking-wider mb-0 flex items-center gap-2">
-                <i class="bi bi-credit-card text-cyan-400"></i> Settlement Ledger
-              </h5>
-              <a href="/admin/payments" class="text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors">Inspect All &rarr;</a>
+              <div>
+                <h5 class="fw-bold text-white mb-0">Top Movies</h5>
+                <p class="text-secondary small mb-0">Ranked by Settled Revenue</p>
+              </div>
+              <span class="badge bg-warning text-dark"><i class="bi bi-trophy-fill"></i></span>
             </div>
 
-            <div class="overflow-x-auto">
-              <table class="w-100 text-left text-xs font-sans">
+            <div class="table-responsive">
+              <table class="table table-dark table-hover align-middle mb-0">
                 <thead>
-                  <tr class="text-slate-400 border-b border-[#1E2433] font-mono text-[11px]">
-                    <th class="py-2.5 px-3">TXN HASH</th>
-                    <th class="py-2.5 px-3">GATEWAY</th>
-                    <th class="py-2.5 px-3">AMOUNT</th>
-                    <th class="py-2.5 px-3">STATE</th>
+                  <tr class="text-secondary small">
+                    <th>FILM</th>
+                    <th class="text-end">SALES</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-[#1E2433]">
-                  <% if (recentPayments && recentPayments.length > 0) { %>
-                    <% recentPayments.forEach(function(p) { %>
-                      <tr class="hover:bg-[#131722] transition-colors">
-                        <td class="py-2.5 px-3">
-                          <div class="font-mono text-slate-200 truncate max-w-[110px]"><%= p.transaction_ref %></div>
-                          <div class="text-slate-500 text-[10px] font-mono"><%= p.customer_name %></div>
+                <tbody>
+                  <% if (topMovies && topMovies.length > 0) { %>
+                    <% topMovies.forEach(function(m, idx) { %>
+                      <tr>
+                        <td>
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-circle" style="width: 22px; height: 22px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center;">
+                              <%= idx + 1 %>
+                            </span>
+                            <div>
+                              <div class="fw-semibold text-white small"><%= m.title %></div>
+                              <div class="text-secondary" style="font-size: 0.7rem;"><%= m.total_bookings %> booking(s)</div>
+                            </div>
+                          </div>
                         </td>
-                        <td class="py-2.5 px-3">
-                          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase bg-[#181E2E] text-slate-300 border border-[#21293B]"><%= p.payment_method %></span>
-                        </td>
-                        <td class="py-2.5 px-3 font-mono font-bold text-white">
-                          ₹<%= Number(p.amount).toFixed(2) %>
-                        </td>
-                        <td class="py-2.5 px-3">
-                          <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase <%= p.payment_status === 'success' ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-300 border border-rose-500/30' %>">
-                            <%= p.payment_status %>
-                          </span>
+                        <td class="text-end fw-bold text-warning">
+                          ₹<%= parseFloat(m.revenue || 0).toFixed(2) %>
                         </td>
                       </tr>
                     <% }); %>
                   <% } else { %>
                     <tr>
-                      <td colspan="4" class="text-center text-slate-500 py-4 font-mono">No settlement records found.</td>
+                      <td colspan="2" class="text-center text-secondary py-4">No revenue data available.</td>
                     </tr>
                   <% } %>
                 </tbody>
@@ -288,144 +225,88 @@
           </div>
         </div>
       </div>
+
+      <!-- Recent Payments Audit (Row 3) -->
+      <div class="card bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded-4 p-4 shadow-sm mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="fw-bold text-white mb-0">Recent Payment Transactions</h5>
+            <p class="text-secondary small mb-0">Audit logs from Payments table linked to Bookings</p>
+          </div>
+          <a href="/admin/payments" class="btn btn-outline-secondary btn-sm rounded-pill text-light px-3">
+            View All Payments <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+              <tr class="text-secondary small">
+                <th>TXN REFERENCE</th>
+                <th>BOOKING REF</th>
+                <th>CUSTOMER</th>
+                <th>METHOD</th>
+                <th>AMOUNT</th>
+                <th>STATUS</th>
+                <th>DATE / TIME</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (recentPayments && recentPayments.length > 0) { %>
+                <% recentPayments.forEach(function(p) { %>
+                  <tr>
+                    <td>
+                      <span class="badge text-bg-dark border border-secondary border-opacity-25 font-monospace">
+                        <%= p.transaction_ref %>
+                      </span>
+                    </td>
+                    <td class="text-secondary small"><%= p.booking_ref %></td>
+                    <td class="text-white small fw-semibold"><%= p.customer_name %></td>
+                    <td>
+                      <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-25">
+                        <%= p.payment_method %>
+                      </span>
+                    </td>
+                    <td class="fw-bold text-white">₹<%= parseFloat(p.amount).toFixed(2) %></td>
+                    <td>
+                      <% if (p.payment_status === 'SUCCESS') { %>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">SUCCESS</span>
+                      <% } else if (p.payment_status === 'PENDING') { %>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">PENDING</span>
+                      <% } else { %>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><%= p.payment_status %></span>
+                      <% } %>
+                    </td>
+                    <td class="text-secondary small">
+                      <%= new Date(p.payment_date).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="7" class="text-center text-secondary py-4">No payment transactions recorded.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DBMS Project Notes Card -->
+      <div class="alert alert-secondary bg-dark border-secondary border-opacity-25 rounded-4 p-3 mb-0">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-info-circle-fill text-warning fs-5"></i>
+          <div>
+            <span class="fw-bold text-white">DBMS Laboratory Project (3rd Semester):</span>
+            <span class="text-secondary small ms-1">
+              Implements 9 core normalized relational tables (<code>users</code>, <code>theaters</code>, <code>screens</code>, <code>seats</code>, <code>movies</code>, <code>showtimes</code>, <code>bookings</code>, <code>booking_seats</code>, <code>payments</code>) with primary keys, foreign key constraints, <code>ON DELETE CASCADE</code> rules, and ACID transaction semantics.
+            </span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
-
-<!-- Raw Chart Data for Client Scripts -->
-<script id="dailyBookingsData" type="application/json"><%- JSON.stringify(dailyBookings || []) %></script>
-<script id="movieRevenueData" type="application/json"><%- JSON.stringify(movieRevenue || []) %></script>
-
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // 1. Velocity Trends Line Chart (ZeBeyond Indigo/Cyan neon styling)
-    const trendCtx = document.getElementById('trendChart');
-    if (trendCtx) {
-      const dailyDataRaw = document.getElementById('dailyBookingsData');
-      const dailyData = dailyDataRaw ? JSON.parse(dailyDataRaw.textContent || '[]') : [];
-      const labels = dailyData.map(d => new Date(d.report_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-      const bookingsCount = dailyData.map(d => d.total_bookings);
-      const revenues = dailyData.map(d => Number(d.daily_revenue));
-
-      new Chart(trendCtx, {
-        type: 'line',
-        data: {
-          labels: labels.length > 0 ? labels : ['Today'],
-          datasets: [
-            {
-              label: 'Daily Revenue (₹)',
-              data: revenues.length > 0 ? revenues : [0],
-              borderColor: '#00F0FF',
-              backgroundColor: 'rgba(0, 240, 255, 0.08)',
-              borderWidth: 2,
-              tension: 0.35,
-              fill: true,
-              pointBackgroundColor: '#00F0FF',
-              pointBorderColor: '#07080C',
-              pointRadius: 4,
-              yAxisID: 'y'
-            },
-            {
-              label: 'Confirmed Bookings',
-              data: bookingsCount.length > 0 ? bookingsCount : [0],
-              borderColor: '#6366F1',
-              backgroundColor: 'rgba(99, 102, 241, 0.1)',
-              borderWidth: 2,
-              tension: 0.35,
-              pointBackgroundColor: '#6366F1',
-              pointBorderColor: '#07080C',
-              pointRadius: 4,
-              yAxisID: 'y1'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { mode: 'index', intersect: false },
-          scales: {
-            x: {
-              grid: { color: 'rgba(255, 255, 255, 0.04)' },
-              ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 10 } }
-            },
-            y: {
-              type: 'linear',
-              display: true,
-              position: 'left',
-              grid: { color: 'rgba(255, 255, 255, 0.04)' },
-              ticks: {
-                color: '#00F0FF',
-                font: { family: 'JetBrains Mono', size: 10 },
-                callback: v => '₹' + v
-              }
-            },
-            y1: {
-              type: 'linear',
-              display: true,
-              position: 'right',
-              grid: { drawOnChartArea: false },
-              ticks: {
-                color: '#6366F1',
-                stepSize: 1,
-                font: { family: 'JetBrains Mono', size: 10 }
-              }
-            }
-          },
-          plugins: {
-            legend: {
-              labels: {
-                color: '#94A3B8',
-                boxWidth: 10,
-                font: { family: 'JetBrains Mono', size: 11 }
-              }
-            }
-          }
-        }
-      });
-    }
-
-    // 2. Movie Revenue Doughnut Chart
-    const pieCtx = document.getElementById('moviePieChart');
-    if (pieCtx) {
-      const movieDataRaw = document.getElementById('movieRevenueData');
-      const movieData = movieDataRaw ? JSON.parse(movieDataRaw.textContent || '[]') : [];
-      const movieLabels = movieData.map(m => m.movie_title);
-      const movieTotals = movieData.map(m => Number(m.total_revenue));
-
-      new Chart(pieCtx, {
-        type: 'doughnut',
-        data: {
-          labels: movieLabels.length > 0 ? movieLabels : ['No Settled Sales'],
-          datasets: [{
-            data: movieTotals.length > 0 ? movieTotals : [1],
-            backgroundColor: [
-              '#00F0FF', '#6366F1', '#10B981', '#8B5CF6', '#F59E0B', '#64748B'
-            ],
-            borderColor: '#0B0D13',
-            borderWidth: 3
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                color: '#94A3B8',
-                boxWidth: 8,
-                padding: 12,
-                font: { family: 'JetBrains Mono', size: 10 }
-              }
-            }
-          }
-        }
-      });
-    }
-  });
-</script>
 
 <%- include('../partials/footer') %>

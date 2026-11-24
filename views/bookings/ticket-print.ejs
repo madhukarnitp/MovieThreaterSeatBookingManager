@@ -10,13 +10,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      corePlugins: { preflight: false }
-    }
-  </script>
 
   <style>
     :root {
@@ -168,7 +161,7 @@
   </style>
 </head>
 
-<body class="bg-[#0b0f19] text-light">
+<body class="bg-dark text-light">
 
   <div class="ticket-wrapper">
     <!-- Top Action Controls -->
@@ -201,7 +194,7 @@
               <i class="bi bi-ticket-perforated-fill text-warning fs-6"></i>
               <span class="fw-bold tracking-wider text-uppercase" style="letter-spacing: 0.08em; font-size: 0.82rem;">Cinema Admission Pass</span>
             </div>
-            <small class="text-slate-400 d-block mt-0.5" style="color: #94a3b8; font-size: 0.68rem;">Official Digital Entry Voucher &bull; Ticket <%= idx + 1 %> of <%= totalCount %></small>
+            <small class="text-secondary d-block mt-0.5" style="font-size: 0.68rem;">Official Digital Entry Voucher &bull; Ticket <%= idx + 1 %> of <%= totalCount %></small>
           </div>
           <div class="text-end">
             <span class="badge bg-warning text-dark font-monospace fw-bold px-2 py-1" style="font-size: 0.72rem;">
